@@ -1,0 +1,260 @@
+body {
+  margin: 15;
+  background-color: #eee;
+  font: 14px helvetica;
+}
+
+.rcol
+{
+float:right;
+}
+
+.lcol
+{
+float:left;
+}
+
+a {
+  color: #0F0F0F;
+  text-decoration: none;
+}
+
+a:active {
+  color: #cedb9c;
+}
+
+a:visited {
+  fill: none !important;
+}
+
+a:hover {
+  color: #4a5584;
+  text-decoration: underline;
+}
+
+.selected a {
+  color: #000;
+}
+
+.title, .head, .subhead, .body, .foot {
+  padding: 10px;
+  width: 900px;
+  margin: auto;
+  padding-left: 40px;
+  padding-right: 40px;
+}
+
+.title {
+  background: #eee;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.subtitle {
+  float: right;
+  text-align: right;
+  width: 49%;
+  text-transform: lowercase;
+  font-variant: small-caps;
+  font-weight: normal;
+  color: #666;
+}
+
+.head, .subhead {
+  background: #fff;
+  height: 1.34em;
+  font-weight: bold;
+  border-bottom: solid 1px #aaa;
+  border-right: solid 1px #aaa;
+  margin-bottom: 10px;
+}
+
+.subhead {
+  color: #4a5584;
+  margin-bottom: 0px;
+  border-bottom: solid 1px #eee;
+  font-weight: normal;
+}
+
+.section {
+  float: left;
+  margin-right: 20px;
+}
+
+.body {
+  background: #fff;
+  border-right: solid 1px #aaa;
+  border-bottom: solid 1px #aaa;
+  padding-bottom: 40px;
+}
+
+.foot {
+  color: #666;
+  font-size: 11px;
+  text-align: right;
+}
+
+.overlay {
+   background-color: #000;
+   opacity: .7;
+   filter: alpha(opacity=70);
+   position: fixed; top: 0; left: 0;
+   width: 100%; height: 100%;
+   z-index: 10;
+}
+
+.stopCalc {
+  position: absolute;
+  z-index: 11;
+  left: 50px;
+  top: 50px;
+  font-size: 12px;
+}
+
+.wheel {
+  position: absolute;
+  left:600px;
+  top:400px;
+}
+
+
+.ui-tooltip {
+	border-color: #800000;
+	font-weight: bold;
+	font-size: 12px;
+	max-width: 200px;
+}
+
+fieldset {
+  border-top-left-radius: 10px;
+}
+  
+ul#tabs { 
+	list-style-type: none; 
+	margin: 10px 0 0 0; 
+	padding: 0 0 0.3em 0; 
+}
+
+ul#tabs li { 
+	display: inline; 
+	float: right;
+}
+
+ul#tabs li a { 
+	color: #42454a; 
+	background-color: #dedbde; 
+	border: 1px solid #c9c3ba; 
+	border-bottom: none; 
+	border-top-left-radius: 7px;
+	padding: 2px; 
+	text-decoration: none; 
+}
+
+ul#tabs li a:hover { 
+	background-color: #f1f0ee; 
+}
+
+ul#tabs li a.selected { 
+	color: #000; 
+	background-color: #f1f0ee; 
+	font-weight: bold;
+	font-size: 16px;
+	padding: 0.7em 0.3em 0.38em 0.3em; 
+}
+
+ul#tabs li a.!selected { 
+	margin-top: 1px;
+}
+
+div.tabContent { 
+	border: 1px solid #c9c3ba; 
+	padding: 0.5em; 
+	background-color: #f1f0ee; 
+}
+
+div.tabContent.hide { 
+	display: none; 
+}
+
+div.status {
+	width: 270px; 
+	height: 100px; 
+	margin-left: 50px;
+	margin-top: 10px;
+	font-weight: bold;
+	visibility: hidden;
+	border-radius: 8px;
+	border: 1px solid #000
+}
+
+div.status p {
+	margin-left:20px; 
+	margin-right:20px
+}
+
+div.smallChart {
+	width:320px; 
+	height:200px; 
+	margin:0 auto
+}
+
+fieldset.smallChart {
+	width:330px; 
+	height:220px;
+	border-radius: 3px
+}
+
+div.mainChart {
+	width:675px; 
+	height:440px; 
+	margin:0 auto
+}
+
+fieldset.mainChart {
+	width:695px; 
+	height:460px;
+	border-radius: 3px
+}
+
+div.issueList {
+	width:685px; 
+	height:100px; 
+	background-color:white; 
+	overflow:auto;
+}
+
+fieldset.issueList {
+	width:695px; 
+	height:120px
+}
+
+fieldset.fullPage {
+	width:1100px; 
+	height:820px
+}
+
+div.fullPage {
+	width:1090px; 
+	height:800px; 
+	background-color:white; 
+	overflow:auto
+}
+
+select.project {
+	 font-size:20px
+}
+
+input.button {
+	margin-left:10px
+}
+
+fieldset.smallGroup {
+	width: 150px; 
+	height: 60px
+}
+
+input.weeks {
+	width: 30px;
+	font-size: 16px;
+	padding: 0.1em
+}
