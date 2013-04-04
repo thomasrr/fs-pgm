@@ -1,10 +1,11 @@
-var srv = require('express');
+var express = require('express');
 
-var app = srv.createServer(srv.logger());
+var app = express();
 
-app.get('/', function(request, response) {
-  response.send('test.html');
-});
+app.use(express.static(__dirname + '\\public'));
+//app.set('view engine', 'html');
+//app.set('views', __dirname);
+
 
 var port = process.env.PORT || 5000;
 app.listen(port);

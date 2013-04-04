@@ -3,7 +3,7 @@
   "description": "Dashboard for Program Management",
   "version": "0.0.1",
   "dependencies": {
-    "express": "2.5.x"
+    "express": "~3.1.1"
   },
   "engines": {
     "node": "0.8.x",
