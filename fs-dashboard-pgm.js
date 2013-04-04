@@ -2,7 +2,7 @@ var srv = require('express');
 
 var app = srv.createServer(srv.logger());
 
-app.get('fs-dashboard-pgm', function(request, response) {
+app.get('/', function(request, response) {
   response.send('test.html');
 });
 
