@@ -240,6 +240,13 @@ div.fullPage {
 	overflow:auto
 }
 
+div.halfPage {
+	width:545px; 
+	height:800px; 
+	background-color:white; 
+	overflow:auto
+}
+
 select.project {
 	 font-size:20px
 }

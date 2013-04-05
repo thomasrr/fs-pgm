@@ -2031,6 +2031,8 @@ $(document).ready(function() {
 	$("#sync").click(function(e) {
 	  syncJIRA();
 	});
+	
+	$('#
 });
 
 function zoomChart(title, newValue, chartFunc, data, supportData) {
