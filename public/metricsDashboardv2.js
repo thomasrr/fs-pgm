@@ -12,18 +12,6 @@ var JIRAREST = JIRABASE + "rest/api/2/"
 
 var AUTOLOAD = false;   // turn off if problem with project
 
-var CURRENT = { endDate: 0, 
-                projDate: 0,
-				avgSize: 4, 
-				velIncr: 1,
-				burndown: { value: 0, data: 0 },
-				cycles: { value: 0, data: 0 },
-				velocity: { value: 0, ready: false, data: 0 },
-				impact: { value: 0, data: 0 },
-				defect: { data: 0 },
-				story: { data: 0 },
-				issues: { data: 0}};
-
 // Handling local storage
 function getStoredItem(item) {
   var result = "";
@@ -641,22 +629,23 @@ function loadCycleData(localData, compute) {
   }
 }
 
-function loadCycleStory(localData) {
-  if (CURRENT.cycles.value > 0) {
-    document.getElementById("cycle").innerHTML = "Processing " + CURRENT.cycles.value + ".....";
+function loadCycleStory(localData, compute) {
+  var value = compute.getValue('cycles');
+  if (value > 0) {
+    document.getElementById("cycle").innerHTML = "Processing " + value + ".....";
 	document.getElementById("cycleTime").innerHTML = "Building Cycle Time Charts.....";
-	setTimeout( function(){loadCycleStory(localData)}, WAIT);
+	setTimeout( function(){loadCycleStory(localData, compute)}, WAIT);
   }
-  else if (CURRENT.cycles.value == 0) {
+  else if (value == 0) {
     document.getElementById("cycle").innerHTML = "Building Cycle Time Chart.....";
 	document.getElementById("cycleTime").innerHTML = "Building Cycle Time Charts.....";
 
 	var ordered = collectV1Data(localData);
 	buildCycleChart(ordered, 'cycle');
 
-    buildCyclePage(ordered, CURRENT.cycles.data);
+    buildCyclePage(ordered, compute.getData('cycles'));
 	
-	buildResource(CURRENT.cycles.data);
+	buildResource(compute.getData('cycles'));
   }
 }
 
