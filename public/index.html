@@ -4,12 +4,12 @@
 
 <title>Metrics Dashboard</title>
 
-	<link type="text/css" rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />
+	<link type="text/css" rel="stylesheet" href="jquery-ui.css" />
     <link type="text/css" rel="stylesheet" href="metrics_style.css"/>
 	
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-	<script type="text/javascript" src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
-	<script type="text/javascript" src="http://code.highcharts.com/highcharts.js"></script>
+	<script type="text/javascript" src="jquery-1.9.1.min.js"></script>
+	<script type="text/javascript" src="jquery-ui.js"></script>
+	<script type="text/javascript" src="Highcharts-3.0.1/js/highcharts.js"></script>
 		
 	<script type="text/javascript" src="calculate.js"></script>
 	<script type="text/javascript" src="metricsDashboardv2.js"></script>
@@ -17,7 +17,151 @@
 	
 </head>
 
-<body onload="loadLoginPage()">
+<body onload="loadDashboard()">
+
+<form name="projectData" id="projectData">
+  <select class="project" name="projectName" id="projectName">
+  </select>
+   
+  <input type="button" id="loadData" value="Compute"/>
+</form> 
+
+
+<ul id="tabs">
+  <li><a href="#dash">Dashboard</a></li>
+  <li><a href="#defects">Defects</a></li>
+  <li><a href="#stories">Stories</a></li>
+  <li><a href="#cycleTab">Cycle Time</a></li>
+  <li><a href="#zoomTab"> </a></li>
+  <li><a href="#options">Options</a></li>
+</ul>
+
+<div class="tabContent" id="dash">
+<table>
+<tr>
+<td colspan="2"><fieldset class="issueList">
+   <legend id="issueLegend">Issues and dependencies
+   <a href="#" title="Expand/reduce 'Issues and dependencies' output">
+   <input class="button" type="button" id="issueList" value="+" ></a></legend>
+      <div id="issueData" class="issueList"></div>
+</fieldset></td>
+<td>
+  <div class="status" id="status">
+  <p id="statusText"></p></div>
+</td>
+</tr>  
+
+<tr>
+<td colspan="2" rowspan="2"><fieldset class="mainChart" >
+   <legend id="burndownLegend">Burndown chart
+      <a href="#" title="Zoom 'Burndown chart' to another page">
+	  <input class="button" type="button" id="burnZoom" value="+"/></a></legend>
+      <div id="burndown" class="mainChart" ></div>
+</fieldset> </td>
+<td><fieldset class="smallChart">
+   <legend id="impactLegend">Story Impact
+     <a href="#" title="Zoom 'Story Impact' chart to another page">
+	 <input class="button" type="button" id="impactZoom" value="+"</></a>
+	 </legend>
+      <div class="smallChart" id="impact" ></div>
+</fieldset></td>
+</tr>
+<tr>
+<td><fieldset class="smallChart">
+   <legend id="velocityLegend">Velocity chart
+      <a href="#" title="Zoom 'Velocity chart' to another page">
+	  <input class="button" type="button" id="veloZoom" value="+"/></a></legend>
+      <div id="velocity" class="smallChart"></div>
+</fieldset></td>
+</tr>
+<tr>
+<td><fieldset class="smallChart">
+   <legend id="cycleLegend">Cycle Time chart</legend>
+      <div id="cycle" class="smallChart"></div>
+</fieldset></td>
+<td><fieldset class="smallChart">
+   <legend id="resourceLegend">Resource Use</legend>
+      <div id="resource" class="smallChart"></div>
+</fieldset></td>
+<td><fieldset class="smallChart">
+   <legend id="defectLegend">Defect Aging chart</legend>
+      <div id="aging" class="smallChart"></div>
+</fieldset></td>
+</tr>
+
+</table>
+</div>
+
+<div class="tabContent" id="stories">
+<fieldset class="fullPage" >
+   <legend id="storyLegend">V1 Stories
+   <a href="#" title="Expand/reduce 'V1 Stories' output">
+   <input class="button" type="button" id="storyList" value="-"></a></legend>
+      <div id="storyData" class="fullPage"></div>
+</fieldset>
+</div>
+
+<div class="tabContent" id="defects">
+<table>
+<td><fieldset class="fullPage">
+   <legend id="bugLegend">V1 Defects
+   <a href="#" title="Expand/reduce 'V1 Defects' output">
+   <input class="button" type="button" id="defectList" value="-"></a></legend>
+      <div id="bugData" class="fullPage"></div>
+</fieldset></td>
+</table>
+</div>
+
+<div class="tabContent" id="cycleTab">
+<table>
+<td><fieldset class="fullPage">
+   <legend id="cycleTimeLegend">Cycle Time Breakdown</legend>
+     <div id="cycleTime" class="fullPage"></div>
+</fieldset></td>
+</table>
+</div>
+
+<div class="tabContent" id="zoomTab">
+<table>
+<td><fieldset class="fullPage">
+   <legend id="zoomLegend"></legend>
+     <div id="zoom" class="fullPage"></div>
+</fieldset></td>
+</table>
+</div>
+
+<div class="tabContent" id="options">
+  Number cycles in average
+  <input type="text" name="average" value="4" id="average" class="weeks"></br></br>
+  
+  <fieldset class="smallGroup">
+    <legend>Sync to JIRA</legend>
+	<input type="button" id="sync" value="Sync" 
+      <a href="#" title="Sync this project to JIRA"/>
+	<input type="button" id="syncOptions" value="Options" 
+      <a href="#" title="Options for synching VersionOne with JIRA"/>
+  </fieldset> 
+  </br>
+   
+  <fieldset class="smallGroup">
+    <legend>Size of iteration</legend>
+	<input type="radio" name="week" id="one" checked="checked">One week<br>
+    <input type="radio" name="week" id="two">Two weeks
+  </fieldset> 
+  </br>
+  
+  <input type="button" id="prefs" value="Update" 
+    <a href="#" title="Update changes to options. Automatically recomputes current dashboard"/>
+  <input type="button" id="resetPrefs" value="Reset"
+    <a href="#" title="Reset options to default values. Automatically recomputes current dashboard"/>
+  <input type="button" id="clearStorage" value="Purge" 
+    <a href="#" title="Delete all stored data.  Will need to recompute dashboard"/>
+  
+</div>
+
+<script language="Javascript">
+  initPageData();
+</script>
 
 </body>
 

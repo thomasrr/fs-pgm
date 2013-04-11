@@ -8,17 +8,41 @@ var V1REST = V1BASE + "rest-1.v1/"
 var V1BASEURL = V1REST + "Data/";
 var V1HISTURL = V1REST + "Hist/";
 var JIRABASE = "https://almtools.ldschurch.org/fhjira/";
-var JIRAREST = JIRABASE + "rest/api/2/"
+var JIRAREST = JIRABASE + "rest/api/2/";
+var DBBASE = 'http://localhost:5000/';
+var DBURL = 'fs-pgm-data';
 
 var AUTOLOAD = false;   // turn off if problem with project
+var USELOCAL = true;
 
 // Handling local storage
 function getStoredItem(item) {
-  var result = "";
-  if (window.localStorage) {
-    result = window.localStorage.getItem(item);
+  var value = "";
+  if (USELOCAL) {
+    if (window.localStorage) value = window.localStorage.getItem(item);
   }
-  return result; 
+  else {  // use database on server
+    var urlStr = DBBASE;
+	var dataStr = '{ "id":"item" }';
+	$.ajax({
+      url: urlStr,
+//      headers: getV1Headers(),
+	  type: 'GET',
+	  data: dataStr,
+      dataType: 'jsonp',
+	  async: false,
+      success: function(result) {
+	    console.log(JSON.stringify(result, null, 4));   // Debug json results
+	    value = result.data;
+	  },
+	  error: function(err) {
+
+	    console.log("Error:" + err);
+	  }
+    });
+  }
+
+  return value; 
 }
 
 function setStoredItem(item, value) {
@@ -34,6 +58,28 @@ function setStoredItem(item, value) {
 
 function clearStorage() {
   window.localStorage.clear();
+}
+
+function checkLogin(user, pass) {
+  var value = false;
+  var urlStr = DBBASE + DBURL + '/{id:general}';
+  console.log ("checkLogin: " + user + ':' + pass);
+	
+  $.ajax({
+      url: urlStr,
+	  type: 'GET',
+      success: function(result) {
+//	    console.log("Results: \n" + JSON.stringify(result, null, 4));   // Debug json results
+	    value = ((result.name == user) && (result.pass == pass));
+	  },
+	  error: function(err) {
+	    console.log("Error: \n" + JSON.stringify(err, null, 4));   // Debug json results
+	  },
+	  async: false
+  });
+  console.log('Value: ' + value);
+  
+  return value;
 }
 
 function storePageValues() {
@@ -383,7 +429,11 @@ function orderV1Data(data) {
 }
 
 function getV1Headers() {
-  var headers = { Authorization: "Basic " + btoa("rpt:harvest") };
+//  var data = getStoredItem('V1user');
+//  var auth = data.name + ':' + data.pass;
+//  console.log ('AUTH: ' + auth);
+  var auth = 'rpt:harvest';
+  var headers = { Authorization: "Basic " + btoa(auth) };
   
   return headers;
 }  
@@ -456,7 +506,11 @@ function getV1Link(oid, text) {
 }
 
 function getJiraHeaders() {
-  var headers = { Authorization: "Basic " + btoa("bireports:harvest") };
+//  var data = getStoredItem('JIRAuser');
+//  var auth = data.name + ':' + data.pass;
+//  var auth = user + ':' + pass;
+  var auth = 'bireports:harvest';
+  var headers = { Authorization: "Basic " + btoa(auth) };
   
   return headers;
 }
