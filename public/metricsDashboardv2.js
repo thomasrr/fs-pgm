@@ -1124,11 +1124,11 @@ function buildImpactChart(actual, dumby, renderTo) {
 				type: 'column'
             },
             title: {
-                text: 'Story Impact',
+                text: '',
                 x: -20 //center
             },
             subtitle: {
-                text: getProjName(),
+                text: '',
                 x: -20
             },
 			plotOptions: {
@@ -1579,11 +1579,11 @@ function buildBurnChart(burnDown, velocity, renderTo) {
                 marginBottom: 25
             },
             title: {
-                text: 'Project Burndown',
+                text: '',
                 x: -20 //center
             },
             subtitle: {
-                text: getProjName(),
+                text: '',
                 x: -20
             },
             xAxis: {
@@ -1656,11 +1656,11 @@ function buildVelocityChart(actual, dumby, renderTo) {
                 marginBottom: 25
             },
             title: {
-                text: 'Team Velocity',
+                text: '',
                 x: -20 //center
             },
             subtitle: {
-                text: getProjName(),
+                text: '',
                 x: -20
             },
 			plotOptions: {
@@ -1734,11 +1734,11 @@ function buildCycleChart(actual, renderTo) {
                 marginBottom: 40
             },
             title: {
-                text: 'Average Cycle Time',
+                text: '',
                 x: -20 //center
             },
             subtitle: {
-                text: getProjName(),
+                text: '',
                 x: -20
             },
 			plotOptions: {
@@ -1798,7 +1798,8 @@ function buildDefectChart(actual) {
   
   var total = 0;
   for (var incr = 0; incr < actual.length; incr++) total += (actual[incr][1] != null) ? actual[incr][1] : 0;
-  var title = 'Open Defect Aging (' + total + ')';
+  var title = 'Defect Aging(' + total + ')';
+  document.getElementById('defectLegend').innerHTML = title;
   
   var chart = new Highcharts.Chart({
             chart: {
@@ -1807,11 +1808,11 @@ function buildDefectChart(actual) {
                 marginBottom: 40
             },
             title: {
-                text: title,
+                text: '',
                 x: -20 //center
             },
             subtitle: {
-                text: getProjName(),
+                text: '',
                 x: -20
             },
 			plotOptions: {
@@ -1868,11 +1869,11 @@ function buildResourceChart(actual) {
 				type: 'column'
             },
             title: {
-                text: 'Resource Utilization (MOCK)',
+                text: '',
                 x: -20 //center
             },
             subtitle: {
-                text: getProjName(),
+                text: '',
                 x: -20
             },
 			plotOptions: {
