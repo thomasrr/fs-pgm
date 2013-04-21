@@ -9,45 +9,61 @@ db = new Db('metricsDB', server);
  
 db.open(function(err, db) {
   if(!err) {
-    console.log("Connected to 'metricsDB' database");
+//    console.log("Connected to 'metricsDB' database");
     db.collection('metricsDB', {strict:true}, function(err, collection) {
+//      populateDB();
       if (err) {
         console.log("The 'metricsDB' collection doesn't exist. Need to load data...");
-//		populateDB();
+
       }
     });
   }
 });
  
 exports.getItem = function(req, res) {
-  var id = req.params.id;   // expecting { id: 'id' }
-  console.log('Retrieving data: ' + JSON.stringify(id));
+  var id = req.params.id;   // expecting 'id' 
+//  console.log('Retrieving: ' + JSON.stringify(id));
   db.collection('metricsDB', function(err, collection) {
-    collection.findOne(id, function(err, item) {
-      res.send(item);
-	  console.log ("getItem item: " + JSON.stringify(item));
-	  console.log ("getItem err: " + JSON.stringify(err));
+    collection.findOne({'id':id}, function(err, item) {
+//	  console.log ("getItem item: " + JSON.stringify(item));
+//	  console.log ("getItem err: " + JSON.stringify(err));
+	  res.send(item);
     });
   });
 };
 
-exports.setItem = function(req, res) {
-  var data = req.body;     // expecting { id: 'id', data: 'data' }  -- overwrites if id exists
-  console.log('Updating data: ' + JSON.stringify(data));
+exports.setItem = function(req, res) {  // overwrites if id exists
+  var id = req.params.id;   // expecting 'id'     
+  var data = req.body.value;  	// expecting 'data' 
+//  console.log('Updating: ' + id);
+//  console.log('  with data: ' + JSON.stringify(data));
   db.collection('metricsDB', function(err, collection) {
-    collection.findOne({'_id':new BSON.ObjectID(id)}, function(err, item) {
-      res.send(item);
+    collection.update({'id':id}, {'id':id, 'value':data}, {upsert: true}, function(err, item) {
+	  if (err) {
+	    console.log ('Error: {' + err + '}');
+        res.send({'error': 'error occurred'});
+	  }
+	  else {
+//	    console.log ('Updated: {' + JSON.stringify(id) + ':' + JSON.stringify(item) + '}');
+        res.send(item);
+	  }
     });
   });
 };
 
 exports.clear = function(req, res) {
-  var data = req.body;     // expecting { id: 'id' } || { id: 'all' }
-  console.log('Clearing data: ' + JSON.stringify(data));
+  var id = req.params.id;   // expecting 'id'  || 'all'
+//  console.log('Clearing: ' + JSON.stringify(data));
   db.collection('metricsDB', function(err, collection) {
-    collection.findOne({'_id':new BSON.ObjectID(id)}, function(err, item) {
-      res.send(item);
+    collection.remove({'id':id}, function(err, item) {
+      if (err) {
+	    console.log ('Error: {' + err + '}');
+        res.send({'error': 'error occurred'});
+	  }
+	  else {
+//	    console.log ('Deleted: {' + JSON.stringify(id) + '}');
+        res.send(item);
+	  }
     });
   });
 };
-

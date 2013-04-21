@@ -1,6 +1,6 @@
 body {
   margin: 15;
-  background-color: #eee;
+  background-color: white;
   font: 14px helvetica;
 }
 
@@ -128,48 +128,56 @@ a:hover {
 fieldset {
   border-top-left-radius: 10px;
 }
-  
-ul#tabs { 
-	list-style-type: none; 
-	margin: 10px 0 0 0; 
-	padding: 0 0 0.3em 0; 
-}
 
-ul#tabs li { 
-	display: inline; 
+ul#tabs{
+	list-style: none;
+	margin: 0 0 0 0;
+	padding: 15px 0;
+	border-bottom: 1px solid #CCC;
+	font-weight: bold;
+	font-size: 15px;
+	text-align: right;
+	white-space: nowrap
+}
+  
+ul#tabs li {
+	display: inline;
 	float: right;
+	margin: 0 0;
 }
 
 ul#tabs li a { 
 	color: #42454a; 
-	background-color: #dedbde; 
-	border: 1px solid #c9c3ba; 
-	border-bottom: none; 
-	border-top-left-radius: 7px;
-	padding: 2px; 
+	background-color: white; 
+	padding-bottom: 5px;
+	padding-left: 12px; 
+	padding-right: 12px;
 	text-decoration: none; 
 }
 
 ul#tabs li a:hover { 
-	background-color: #f1f0ee; 
+	border-color: #F80;
+	color: #667
 }
 
-ul#tabs li a.selected { 
-	color: #000; 
-	background-color: #f1f0ee; 
+ul#tabs li a.selected {  
+	border-color: #F20;
+	color:#06F; 
 	font-weight: bold;
 	font-size: 16px;
-	padding: 0.7em 0.3em 0.38em 0.3em; 
 }
 
-ul#tabs li a.!selected { 
-	margin-top: 1px;
+ul#tabs a{
+	text-decoration: none;
+	padding: 0 0 3px;
+	border-bottom: 4px solid white;
+	color: #999;
 }
 
 div.tabContent { 
-	border: 1px solid #c9c3ba; 
+	border: none; 
 	padding: 0.5em; 
-	background-color: #f1f0ee; 
+	background-color: white; 
 }
 
 div.tabContent.hide { 
@@ -201,7 +209,7 @@ div.smallChart {
 fieldset.smallChart {
 	width:330px; 
 	height:220px;
-	border-radius: 3px
+	border-radius: 3px;
 }
 
 div.mainChart {
@@ -213,7 +221,7 @@ div.mainChart {
 fieldset.mainChart {
 	width:695px; 
 	height:460px;
-	border-radius: 3px
+	border-radius: 3px;
 }
 
 div.issueList {
@@ -224,20 +232,22 @@ div.issueList {
 }
 
 fieldset.issueList {
-	width:695px; 
-	height:120px
+	width:685px; 
+	height:120px;
+	padding: 15px;
 }
 
 fieldset.fullPage {
-	width:1100px; 
+	width:1120px; 
 	height:820px
 }
 
 div.fullPage {
 	width:1090px; 
-	height:800px; 
+	height:770px; 
 	background-color:white; 
-	overflow:auto
+	overflow:auto;
+	padding: 15px;
 }
 
 div.halfPage {
@@ -248,11 +258,23 @@ div.halfPage {
 }
 
 select.project {
-	 font-size:20px
+	 font-size:20px;
+}
+
+form.projectData {
+	 padding-top: 15px;
 }
 
 input.button {
 	margin-left:10px
+}
+
+input.loadData {
+	height: 30px;
+	margin-left: 5px;
+	text-align: center;
+	padding-right: 15px;
+	padding-left: 15px;
 }
 
 fieldset.smallGroup {

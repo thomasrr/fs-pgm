@@ -10,80 +10,100 @@ var V1HISTURL = V1REST + "Hist/";
 var JIRABASE = "https://almtools.ldschurch.org/fhjira/";
 var JIRAREST = JIRABASE + "rest/api/2/";
 var DBBASE = 'http://localhost:5000/';
-var DBURL = 'fs-pgm-data';
+var DBURL = 'mongo/';
 
 var AUTOLOAD = false;   // turn off if problem with project
-var USELOCAL = true;
+var USELOCAL = false;	// switch between storage model (mongoDB == false)
 
-// Handling local storage
-function getStoredItem(item) {
-  var value = "";
-  if (USELOCAL) {
-    if (window.localStorage) value = window.localStorage.getItem(item);
-  }
-  else {  // use database on server
-    var urlStr = DBBASE;
-	var dataStr = '{ "id":"item" }';
+// Handling data storage
+function getStoredItem(item, forceLocal) {
+  var value = null;
+  
+  if ((USELOCAL == false) && (forceLocal == false)) {  // use database on server
+	var urlStr = DBBASE + DBURL + item;
 	$.ajax({
       url: urlStr,
-//      headers: getV1Headers(),
 	  type: 'GET',
-	  data: dataStr,
-      dataType: 'jsonp',
+      dataType: 'json',
 	  async: false,
       success: function(result) {
-	    console.log(JSON.stringify(result, null, 4));   // Debug json results
-	    value = result.data;
+//	    console.log("Get: " + JSON.stringify(result));   // Debug json results
+	    value = result.value;
 	  },
 	  error: function(err) {
-
-	    console.log("Error:" + err);
+	    console.log("Error(Get): " + JSON.stringify(err));
 	  }
     });
+  }
+  
+  if (USELOCAL || forceLocal || (value == null)) {  // look locally if not in database (transitionally)
+    if (window.localStorage) value = window.localStorage.getItem(item);
   }
 
   return value; 
 }
 
-function setStoredItem(item, value) {
-  if (window.localStorage) {
-    try {
-	  window.localStorage.setItem(item, value);
-	}
-	catch (error) {
-	  console.log (error);
-	}
+function setStoredItem(item, value, forceLocal) {
+  if (USELOCAL || forceLocal) {
+    if (window.localStorage) {
+      try {
+	    window.localStorage.setItem(item, value);
+	  }
+	  catch (error) {
+	    console.log (error);
+	  }
+    }
+  }
+  else {  // use database on server
+	var urlStr = DBBASE + DBURL + item;
+	$.ajax({
+      url: urlStr,
+	  type: 'POST',
+	  data: {'value':value},
+      dataType: 'json',
+//	  async: false,
+      success: function(result) {
+//	    console.log("Set: " + JSON.stringify(result));   // Debug json results
+	  },
+	  error: function(err) {
+	    console.log("Error(Set): " + JSON.stringify(err));
+	  }
+    });
   }
 }
 
-function clearStorage() {
-  window.localStorage.clear();
+function clearStorage(item, forceLocal) {
+  if (USELOCAL || forceLocal) {
+    if (window.localStorage) window.localStorage.clear();
+  }
+  else {  // use database on server
+	var urlStr = DBBASE + DBURL + item;
+	$.ajax({
+      url: urlStr,
+	  type: 'DELETE',
+      dataType: 'json',
+//	  async: false,
+      success: function(result) {
+//	    console.log("Deleted: " + JSON.stringify(result));   // Debug json result
+	  },
+	  error: function(err) {
+	    console.log("Error: " + JSON.stringify(err));
+	  }
+    });
+  }
 }
 
 function checkLogin(user, pass) {
   var value = false;
-  var urlStr = DBBASE + DBURL + '/{id:general}';
-  console.log ("checkLogin: " + user + ':' + pass);
-	
-  $.ajax({
-      url: urlStr,
-	  type: 'GET',
-      success: function(result) {
-//	    console.log("Results: \n" + JSON.stringify(result, null, 4));   // Debug json results
-	    value = ((result.name == user) && (result.pass == pass));
-	  },
-	  error: function(err) {
-	    console.log("Error: \n" + JSON.stringify(err, null, 4));   // Debug json results
-	  },
-	  async: false
-  });
-  console.log('Value: ' + value);
+
+  var result = getStoredItem('general', false);
+  if (result != null) value = ((result.name == user) && (result.pass == pass));
   
   return value;
 }
 
 function storePageValues() {
-  setStoredItem ("projectName", document.getElementById("projectName").value);
+  setStoredItem ("projectName", document.getElementById("projectName").value, true);
 }
 
 function getStoredBurnDate(projName) {
@@ -100,7 +120,7 @@ function getStoredCycleDate(projName) {
 
 function getStoredDate(projName, type) {
   var result = null;
-  var date = getStoredItem(projName + "$" + type);
+  var date = getStoredItem(projName + "$" + type, false);
   if (date != null) result = createDate(date);
   
   return result;
@@ -156,10 +176,10 @@ function setStoredChartData(projName, data, type) {
   }
   
   var date = data[last][0];
-  setStoredItem(index, date);  
+  setStoredItem(index, date, false);  
 
   index += "$data";
-  setStoredItem(index, value);
+  setStoredItem(index, value, false);
 }
 
 function getStoredBurnData(projName) {
@@ -178,7 +198,7 @@ function getStoredChartData(projName, type) {
   var result = new Array();
   var index = projName + "$" + type + "$data";
   
-  var list = getStoredItem(index);
+  var list = getStoredItem(index, false);
   if (list == null) return result;
   
   var tmp = list.split("$");
@@ -285,7 +305,7 @@ function buildProjList(list) {
 	PROJLIST.sort(function(a,b) { return a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1; });  // sort array on name
 
 	document.getElementById("projectName").innerHTML = buildProjListStr(PROJLIST);
-	document.getElementById("projectName").value = getStoredItem("projectName");;
+	document.getElementById("projectName").value = getStoredItem("projectName", true);
 	if ((getProjName() != "") && (AUTOLOAD == true)) loadMetricsPages();   // load the stored data, if appropriate
 }
 
@@ -429,10 +449,10 @@ function orderV1Data(data) {
 }
 
 function getV1Headers() {
-//  var data = getStoredItem('V1user');
-//  var auth = data.name + ':' + data.pass;
-//  console.log ('AUTH: ' + auth);
-  var auth = 'rpt:harvest';
+  var data = getStoredItem('V1user', false);
+  var auth = data.name + ':' + data.pass;
+//  console.log ('V1 AUTH: ' + auth);
+
   var headers = { Authorization: "Basic " + btoa(auth) };
   
   return headers;
@@ -473,7 +493,7 @@ function getV1URL(type, projName) {
         url = V1HISTURL + "Story?" + JSONSTR + "&" +  PROJSTRC + "&asof=";
   }
   else if (type == "ProjList") {
-        url = V1BASEURL + "Scope?" + JSONSTR + "&" + "where=AssetState=" + V1ACTIVE;
+        url = V1BASEURL + "Scope?" + JSONSTR; // + "&" + "where=AssetState=" + V1ACTIVE;
   }
   else if (type == "CycleList") {
         url = V1HISTURL + "Story?" + JSONSTR + "&" +  PROJSTRC + "&asof=";
@@ -506,10 +526,10 @@ function getV1Link(oid, text) {
 }
 
 function getJiraHeaders() {
-//  var data = getStoredItem('JIRAuser');
-//  var auth = data.name + ':' + data.pass;
-//  var auth = user + ':' + pass;
-  var auth = 'bireports:harvest';
+  var data = getStoredItem('JIRAuser', false);
+  var auth = data.name + ':' + data.pass;
+//  console.log ('JIRA AUTH: ' + auth);
+
   var headers = { Authorization: "Basic " + btoa(auth) };
   
   return headers;
@@ -1446,7 +1466,7 @@ function computeStatus() {
   else {
     var testDate = projDate + (2 * WEEK);
     if (testDate >= endDate) {
-	  result.value = "#FFCC33";
+	  result.value = "#F20";
 	  result.text = "Project at risk</br>Forecast end date is within two weeks of Project target date";
 	}
   }
@@ -2056,7 +2076,7 @@ $(document).ready(function() {
 	});
 	
 	$("#clearStorage").click(function(e) {
-	  clearStorage();
+	  clearStorage();  // needs to project specific and/or local
 	});
 	
 	$("#burnZoom").click(function(e) {

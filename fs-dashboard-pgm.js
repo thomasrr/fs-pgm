@@ -11,9 +11,9 @@ app.configure(function () {
   app.use(express.bodyParser());
 });
 
-app.get('/fs-pgm-data/:id', fsData.getItem);
-app.post('/fs-pgm-data', fsData.setItem);
-app.delete('/fs-pgm-data', fsData.clear);
+app.get('/mongo/:id', fsData.getItem);
+app.post('/mongo/:id', fsData.setItem);
+app.delete('/mongo/:id', fsData.clear);
 
 var port = process.env.PORT || 5000;
 app.listen(port);

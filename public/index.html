@@ -19,11 +19,11 @@
 
 <body onload="loadDashboard()">
 
-<form name="projectData" id="projectData">
+<form class="projectData" name="projectData" id="projectData">
   <select class="project" name="projectName" id="projectName">
   </select>
    
-  <input type="button" id="loadData" value="Compute"/>
+  <input type="button" class="loadData" id="loadData" value="Compute"/>
 </form> 
 
 
@@ -55,13 +55,13 @@
 <td colspan="2" rowspan="2"><fieldset class="mainChart" >
    <legend id="burndownLegend">Burndown
       <a href="#" title="Zoom 'Burndown chart' to another page">
-	  <input class="button" type="button" id="burnZoom" value="+"/></a></legend>
+	  <input class="button" type="button" id="burnZoom" value="zoom"/></a></legend>
       <div id="burndown" class="mainChart" ></div>
 </fieldset> </td>
 <td><fieldset class="smallChart">
    <legend id="impactLegend">Story Impact
      <a href="#" title="Zoom 'Story Impact' chart to another page">
-	 <input class="button" type="button" id="impactZoom" value="+"</></a>
+	 <input class="button" type="button" id="impactZoom" value="zoom"</></a>
 	 </legend>
       <div class="smallChart" id="impact" ></div>
 </fieldset></td>
@@ -70,7 +70,7 @@
 <td><fieldset class="smallChart">
    <legend id="velocityLegend">Velocity 
       <a href="#" title="Zoom 'Velocity chart' to another page">
-	  <input class="button" type="button" id="veloZoom" value="+"/></a></legend>
+	  <input class="button" type="button" id="veloZoom" value="zoom"/></a></legend>
       <div id="velocity" class="smallChart"></div>
 </fieldset></td>
 </tr>
