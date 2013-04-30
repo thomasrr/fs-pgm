@@ -132,12 +132,11 @@ fieldset {
 ul#tabs{
 	list-style: none;
 	margin: 0 0 0 0;
-	padding: 15px 0;
-	border-bottom: 1px solid #CCC;
-	font-weight: bold;
+	padding: 3px 0;
+	border-bottom: 12px solid #CCC;
 	font-size: 15px;
 	text-align: right;
-	white-space: nowrap
+	white-space: nowrap;
 }
   
 ul#tabs li {
@@ -149,20 +148,22 @@ ul#tabs li {
 ul#tabs li a { 
 	color: #42454a; 
 	background-color: white; 
-	padding-bottom: 5px;
 	padding-left: 12px; 
 	padding-right: 12px;
+	padding-top: 7px;
+	padding-bottom: 7px;
+	border-radius: 7px;
 	text-decoration: none; 
 }
 
 ul#tabs li a:hover { 
-	border-color: #F80;
+	background-color: #E1ECC3;
 	color: #667
 }
 
 ul#tabs li a.selected {  
-	border-color: #F20;
-	color:#06F; 
+	color:#667; 
+	background-color: #E1ECC3;
 	font-weight: bold;
 	font-size: 16px;
 }
@@ -177,7 +178,8 @@ ul#tabs a{
 div.tabContent { 
 	border: none; 
 	padding: 0.5em; 
-	background-color: white; 
+	background-color: white;
+	padding-top: 20px;
 }
 
 div.tabContent.hide { 
@@ -263,10 +265,11 @@ select.project {
 
 form.projectData {
 	 padding-top: 15px;
+	 padding-bottom: 20px;
 }
 
 input.button {
-	margin-left:10px
+	margin-left:15px
 }
 
 input.loadData {

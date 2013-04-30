@@ -41,8 +41,8 @@
 <tr>
 <td colspan="2"><fieldset class="issueList">
    <legend id="issueLegend">Issues and dependencies
-   <a href="#" title="Expand/reduce 'Issues and dependencies' output">
-   <input class="button" type="button" id="issueList" value="+" ></a></legend>
+     <input class="button" type="button" id="issueList" value="+" 
+		  title="Expand/reduce 'Issues and dependencies' output"/></legend>
       <div id="issueData" class="issueList"></div>
 </fieldset></td>
 <td>
@@ -54,14 +54,14 @@
 <tr>
 <td colspan="2" rowspan="2"><fieldset class="mainChart" >
    <legend id="burndownLegend">Burndown
-      <a href="#" title="Zoom 'Burndown chart' to another page">
-	  <input class="button" type="button" id="burnZoom" value="zoom"/></a></legend>
+	  <input class="button" type="button" id="burnZoom" value="zoom"
+			 title="Zoom 'Burndown chart' to another page"/></legend>
       <div id="burndown" class="mainChart" ></div>
 </fieldset> </td>
 <td><fieldset class="smallChart">
    <legend id="impactLegend">Story Impact
-     <a href="#" title="Zoom 'Story Impact' chart to another page">
-	 <input class="button" type="button" id="impactZoom" value="zoom"</></a>
+	 <input class="button" type="button" id="impactZoom" value="zoom"
+			title="Zoom 'Story Impact' chart to another page"/>
 	 </legend>
       <div class="smallChart" id="impact" ></div>
 </fieldset></td>
@@ -69,8 +69,8 @@
 <tr>
 <td><fieldset class="smallChart">
    <legend id="velocityLegend">Velocity 
-      <a href="#" title="Zoom 'Velocity chart' to another page">
-	  <input class="button" type="button" id="veloZoom" value="zoom"/></a></legend>
+	  <input class="button" type="button" id="veloZoom" value="zoom"
+			 title="Zoom 'Velocity chart' to another page"/></legend>
       <div id="velocity" class="smallChart"></div>
 </fieldset></td>
 </tr>
@@ -94,9 +94,9 @@
 
 <div class="tabContent" id="stories">
 <fieldset class="fullPage" >
-   <legend id="storyLegend">V1 Stories
-   <a href="#" title="Expand/reduce 'V1 Stories' output">
-   <input class="button" type="button" id="storyList" value="-"></a></legend>
+   <legend id="storyLegend">V1 Stories 
+     <input class="button" type="button" id="storyList" value="-"
+		    title="Expand/reduce 'V1 Stories' output"/></legend>
       <div id="storyData" class="fullPage"></div>
 </fieldset>
 </div>
@@ -104,9 +104,9 @@
 <div class="tabContent" id="defects">
 <table>
 <td><fieldset class="fullPage">
-   <legend id="bugLegend">V1 Defects
-   <a href="#" title="Expand/reduce 'V1 Defects' output">
-   <input class="button" type="button" id="defectList" value="-"></a></legend>
+   <legend id="bugLegend">V1 Defects 
+     <input class="button" type="button" id="defectList" value="-"
+            title="Expand/reduce 'V1 Defects' output"/></legend>
       <div id="bugData" class="fullPage"></div>
 </fieldset></td>
 </table>
@@ -132,14 +132,15 @@
 
 <div class="tabContent" id="options">
   Number cycles in average
-  <input type="text" name="average" value="4" id="average" class="weeks"></br></br>
+  <input type="text" name="average" value="0" id="average" class="weeks" 
+         title="0 means use all values, otherwise use the last # values"/></br></br>
   
   <fieldset class="smallGroup">
     <legend>Sync to JIRA</legend>
-	<input type="button" id="sync" value="Sync" 
-      <a href="#" title="Sync this project to JIRA"/>
+	<input type="button" id="sync" value="Sync"  
+	       title="Sync this project to JIRA"/>
 	<input type="button" id="syncOptions" value="Options" 
-      <a href="#" title="Options for synching VersionOne with JIRA"/>
+           title="Options for synching VersionOne with JIRA"/>
   </fieldset> 
   </br>
    
@@ -151,11 +152,11 @@
   </br>
   
   <input type="button" id="prefs" value="Update" 
-    <a href="#" title="Update changes to options. Automatically recomputes current dashboard"/>
+		 title="Update changes to options. Automatically recomputes current dashboard"/>
   <input type="button" id="resetPrefs" value="Reset"
-    <a href="#" title="Reset options to default values. Automatically recomputes current dashboard"/>
+		 title="Reset options to default values. Automatically recomputes current dashboard"/>
   <input type="button" id="clearStorage" value="Purge" 
-    <a href="#" title="Delete all stored data.  Will need to recompute dashboard"/>
+		 title="Delete all stored data.  Will need to recompute dashboard"/>
   
 </div>
 

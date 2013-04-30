@@ -292,7 +292,7 @@ function buildProjList(list) {
 	var todayStr = today.toJSON().slice(10);
 	
     for (var incr = 0; incr < list.total; incr++) { 
-	  item = { name: list.Assets[incr].Attributes["SecurityScope.Name"].value,
+	  item = { name: list.Assets[incr].Attributes.Name.value,
 	           schedule: list.Assets[incr].Attributes["Schedule.Name"].value,
 			   begin: list.Assets[incr].Attributes.BeginDate.value,
 			   end: list.Assets[incr].Attributes.EndDate.value,
@@ -399,6 +399,7 @@ function getProjLastDate() {   // last date to compute
 var gCALC;
 function initCompute() {
   document.getElementById("zoom").innerHTML = "";
+  document.getElementById("zoom").style.visibility = "hidden";
   
   updateStatus(false);
   
@@ -468,6 +469,9 @@ function getV1URL(type, projName) {
   var CYCSEL = "sel=Timebox,ChangeDate,Estimate,Status&where=Number=";
   var IMPSEL = "sel=ChangeDate,AssetState,Number,Status&where=Scope.Name=" + projStr;
   var STORSEL = "sel=Estimate,Number,Name,Status,Owners,Description,Custom_AcceptanceCriteria";
+  var PROJSEL = "sel=Name,BeginDate,EndDate,Schedule";
+  var PROJUP = "where=Scope.ParentMeAndDown='Scope:1'";
+  var ITERSEL = "sel=BeginDate,EndDate";
   
   var url = "";
   
@@ -493,7 +497,7 @@ function getV1URL(type, projName) {
         url = V1HISTURL + "Story?" + JSONSTR + "&" +  PROJSTRC + "&asof=";
   }
   else if (type == "ProjList") {
-        url = V1BASEURL + "Scope?" + JSONSTR; // + "&" + "where=AssetState=" + V1ACTIVE;
+        url = V1BASEURL + "Scope?" + JSONSTR + "&" + PROJSEL "&" + "where=AssetState=" + V1ACTIVE;
   }
   else if (type == "CycleList") {
         url = V1HISTURL + "Story?" + JSONSTR + "&" +  PROJSTRC + "&asof=";
@@ -503,6 +507,9 @@ function getV1URL(type, projName) {
   }
   else if (type == "Impact") {
         url = V1HISTURL + "Story?" + JSONSTR + "&" +  IMPSEL + "&asof=";
+  }
+  else if (type == "Iteration") {
+        url = V1BASEURL + "Timebox?" + JSONSTR + "&" + ITERSEL + "&where=Schedule.Name=";
   }
   
   return url;
@@ -566,7 +573,7 @@ function loadBurnChart(localData, compute) {
   }
 }
 
-function getV1Data(items, increment, compute, type, firstDate) { 
+function getBurnData(items, increment, compute, type, firstDate) { 
   var today = getProjLastDate(); 
   var localData = new Array();
   
@@ -652,7 +659,7 @@ function collectV1Data(localData) {
 function initLoadBurndown(projName, compute) {
   var items = ["BurnStory", "BurnDefect"];
   
-  var data = getV1Data(items, 1, compute, 'burndown', getStoredBurnDate(projName));
+  var data = getBurnData(items, 1, compute, 'burndown', getStoredBurnDate(projName));
 
   setTimeout( function(){loadBurnData(data, compute)}, WAIT);
 } 
@@ -660,7 +667,7 @@ function initLoadBurndown(projName, compute) {
 // create velocity chart
 function loadVeloData(localData, compute) {
   var value = compute.getValue('velocity');
-  if (value > 0) {
+  if ((value > 0) && compute.isReady('iteration')) {
     document.getElementById('velocity').innerHTML = "Processing " + value + ".....";
 	setTimeout( function(){loadVeloData(localData, compute)}, WAIT);
   }
@@ -1225,14 +1232,96 @@ function buildResource(data) {
   buildResourceChart(result);
 }
 
-// load list data (Issues, Story, Defect)
+// load list data (Issues, Story, Defect, Iterations)
+function initProjectIterations(projName, compute, callBack) {
+  var url = getV1URL("Iteration", projName);
+  
+  updateIteration(url, compute, callBack);
+}
+
+function updateIteration(url, compute, callBack) {
+  var fullURL = url + '"' + getProjSched() + '"';
+  
+  console.log ("V1Iter: " + fullURL);
+  $.ajax({
+    url: fullURL,
+    headers: getV1Headers(),
+	type: 'GET',
+	crossDomain: true,
+    dataType: 'jsonp',
+    success: function(result) {
+	  if (result.Assets.length > 0) {
+//	    console.log(JSON.stringify(result, null, 4));   // Debug json results
+		compute.setData('iteration', result);
+		loadIteration(compute, callBack);
+	  }
+	},
+	error: function(err) {
+	  console.log("Error: " + err);
+	}
+  });
+}
+
+function loadIteration(compute, callBack) {  // weekly or iteration values
+  var result = new Array();
+  var data = compute.getData('iteration');
+  if (data == 0) return;
+      
+  var diff = createV1Date(data.Assets[0].Attributes.EndDate.value) - 
+             createV1Date(data.Assets[0].Attributes.BeginDate.value);
+  var useIncrement = (data.total == 1) && (diff > (2.5 * WEEK));
+  var tmpDate1, tmpDate2;
+  if (useIncrement) {
+	var today = getProjLastDate();
+    var increment = 7 * compute.getIncrement();  // number of weeks
+	
+    var firstDate = getStoredVeloDate(getProjName());
+    var tmpDate = new Date((firstDate != null) ? firstDate : getProjStartDate());
+    if (firstDate != null) tmpDate.setDate(tmpDate.getDate() + increment);  // start a next non-stored iteration
+	
+	while (createV1Date(tmpDate) <= today) {
+      tmpDate1 = tmpDate;
+	  tmpDate.setDate(tmpDate.getDate() + increment);
+	  tmpDate2 = tmpDate;
+	  
+	  result.push({ beginDate: tmpDate1, endDate: tmpDate2 });
+    }
+  }
+  else {
+    for (var incr = 0; incr < data.total; incr++) {
+	  tmpDate1 = createV1Date(data.Assets[incr].Attributes.BeginDate.value);
+	  tmpDate2 = createV1Date(data.Assets[incr].Attributes.EndDate.value);
+	  
+	  result.push({ beginDate: tmpDate1, endDate: tmpDate2 });
+	}
+  }
+  compute.setValue('iteration', result);
+  compute.decrementValue('iteration');
+  
+  if (callBack) callBack(compute);
+}
 
 function initLoadVeloData(projName, compute) {
   var items = ["VeloStory", "VeloDefect"];
   
-  var data = getV1Data(items, (7 * compute.getIncrement()), compute, 'velocity', getStoredVeloDate(projName));   // collect values over one week
+  var data = getVeloData(items, (7 * compute.getIncrement()), compute, 'velocity', getStoredVeloDate(projName));   // collect values over one week
   
-  setTimeout( function(){loadVeloData(data, compute)}, WAIT);
+  setTimeout(function(){loadVeloData(data, compute)}, WAIT);
+}
+
+function getVeloData(items, increment, compute, type, firstDate) { 
+  var today = getProjLastDate(); 
+  var localData = new Array();
+  
+  var dates = compute.getValue('iteration');
+  for (var kont = 0; kont < items.length; kont++) {
+    var base = getV1URL(items[kont], "");
+    for (var incr = 0; incr < dates.length; incr++) { 
+      computeV1Data(base, compute, type, localData, new Date(dates[incr].beginDate));
+    }
+  } // iterate over items
+  
+  return localData;
 }
 
 function getProjName() {
@@ -1384,10 +1473,10 @@ function formatAcceptance (storyList, max) {
   if (percent > 25.00) {
     var color = "FFFF66";
     if (percent > 75.00) {
-	  color = "#CC3300";
+	  color = "#F26868";
 	}
 	else if (percent > 50.00) {
-	  color = "#FFCC33";
+	  color = "#F28D09";
 	}
     first = '<li style="width:310px;background-color:' + color + '">';
   }
@@ -1455,18 +1544,18 @@ function updateStory(compute) {
 }
 
 function computeStatus() {
-  var result = { value: "#66CC00", text: "On Target" };
+  var result = { value: "#60D343", text: "On Target" };
   var projDate = gCALC.getProjDate();
   var endDate = gCALC.getEndDate();
   
   if (projDate > endDate) {
-    result.value = "#D80000";
+    result.value = "#F26868";
 	result.text = "<strong>Project in trouble</strong></br>Forecast end date is greater than Project target date";
   }
   else {
     var testDate = projDate + (2 * WEEK);
     if (testDate >= endDate) {
-	  result.value = "#F20";
+	  result.value = "#F28D09";
 	  result.text = "Project at risk</br>Forecast end date is within two weeks of Project target date";
 	}
   }
@@ -1504,6 +1593,8 @@ function computeIdealLine (line, project) {
   var result = new Array();
   var maxVal = 0;
   
+  if (line.length < 1) return result;
+  
   for (var incr = 0; incr < line.length; incr++) {   // compute max value
     if (line[incr][1] > maxVal) maxVal = line[incr][1];
   }
@@ -1520,7 +1611,7 @@ function computeAvgVelocity(velocity) {
   var avg = 0.0;
   var avgSize = gCALC.getAvgSize();
   
-  if (avgSize > 0) {  
+  if (avgSize > 0) {  // compute average of last set of values
     if (velocity.length > 0) {
       for (var incr = avgSize; incr > 0; incr--) {
 	    sum += velocity[velocity.length-incr][1];
@@ -1529,7 +1620,7 @@ function computeAvgVelocity(velocity) {
 	}
   }
   else {  // if avgSize < 1; compute average of whole array
-    for (var incr in velocity) {
+    for (var incr = 0; incr < velocity.length-1; incr++) {
       sum += velocity[incr][1];
 	  values++;
     }
@@ -1584,8 +1675,9 @@ function buildBurnChart(burnDown, velocity, renderTo) {
   var projected = computeProjected (burnDown, computeAvgVelocity(velocity));
   var V1Line = computeIdealLine (burnDown, projected);
   
-  gCALC.setEndDate(V1Line[V1Line.length-1][0]);
   if (projected.length > 0) gCALC.setProjDate(projected[projected.length-1][0]);
+  if (V1Line.length > 0) gCALC.setEndDate(V1Line[V1Line.length-1][0]);
+  
   var showLegend = true;
   
 //  var ticks = new Array();
@@ -1949,7 +2041,12 @@ function buildResourceChart(actual) {
 function loadMetricsPages() {
   var compute = initCompute();
   //showWaiting();
-  
+  initProjectIterations(getProjName(), compute, loadPageData);
+ 
+  document.getElementById("loadData").value = "Refresh";
+}
+ 
+function loadPageData(compute) {
   updateIssues(compute);
   updateBug(compute);
 
@@ -1962,8 +2059,8 @@ function loadMetricsPages() {
   updateStory(compute);
   storePageValues();
   
-  document.getElementById("loadData").value = "Refresh";
-  setTimeout(function(){clearWait()}, WAIT*5);
+//  document.getElementById('zoomTab').style.visibility = 'hidden';
+//  setTimeout(function(){clearWait()}, WAIT*5);
 }
 
 function clearWait() {

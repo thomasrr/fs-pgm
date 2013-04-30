@@ -1,4 +1,4 @@
-var DEFAVGSIZE = 4;
+var DEFAVGSIZE = 0;
 var DEFVELINCR = 1;
 
 function calculate() {
@@ -10,6 +10,7 @@ function calculate() {
   var cycles = { value: 0, data: 0 };
   var velocity = { value: 0, ready: false, data: 0 };
   var impact = { value: 0, data: 0 };
+  var iteration = { value: 0, ready: false, data: 0 };
   var defect = { data: 0 };
   var story = { data: 0 };
   var issues = { data: 0};
@@ -27,6 +28,7 @@ function calculate() {
       defect = { data: 0 };
       story = { data: 0};
       issues = { data: 0};
+	  iteration = { value: 0, ready: false, data: 0 };
 	  story.data = new Array();
 	  cycles.data = new Array();
 	  impact.data = new Array();
@@ -47,6 +49,9 @@ function calculate() {
 	  }
 	  else if (type == 'impact') {
 	  	impact.value = value;
+	  }
+	  else if (type == 'iteration') {
+	  	iteration.value = value;
 	  }
 	},
 	setData: function(type, data) {
@@ -70,6 +75,9 @@ function calculate() {
 	  }
 	  else if (type == 'issues') {
 	  	issues.data = data;
+	  }
+	  else if (type == 'iteration') {
+	  	iteration.data = data;
 	  }
 	},
 	incrementValue: function(type) {
@@ -100,13 +108,23 @@ function calculate() {
 	  else if (type == 'impact') {
 	  	impact.value--;
 	  }
+	  else if (type == 'iteration') {
+	    iteration.ready = true;
+	  }
 	},
 	pushCycles: function(data) { cycles.data.push(data); },
 	pushImpact: function(posn, data) { 
 	  impact.data[posn] = new Array(); 
 	  impact.data[posn].push(data); 
 	},
-	isReady: function() { return velocity.ready; },
+	isReady: function(type) { 
+	   if (type == 'velocity') {
+	     return velocity.ready; 
+	   }
+	   else if (type == 'iteration') {
+	     return iteration.ready;
+	   }
+	},
 	getEndDate: function() { return endDate; },
 	getProjDate: function() { return projDate; },
 	getAvgSize: function() { return avgSize; },
@@ -123,6 +141,9 @@ function calculate() {
 	  }
 	  else if (type == 'impact') {
 	  	return impact.value;
+	  }
+	  else if (type == 'iteration') {
+	  	return iteration.value;
 	  }
 	},
 	getData: function(type) {
@@ -146,6 +167,9 @@ function calculate() {
 	  }
 	  else if (type == 'issues') {
 	    return issues.data;
+	  }
+	  else if (type == 'iteration') {
+	    return iteration.data;
 	  }
 	}
   };
