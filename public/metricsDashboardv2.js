@@ -497,7 +497,7 @@ function getV1URL(type, projName) {
         url = V1HISTURL + "Story?" + JSONSTR + "&" +  PROJSTRC + "&asof=";
   }
   else if (type == "ProjList") {
-        url = V1BASEURL + "Scope?" + JSONSTR + "&" + PROJSEL "&" + "where=AssetState=" + V1ACTIVE;
+        url = V1BASEURL + "Scope?" + JSONSTR + "&" + PROJSEL + "&" + "where=AssetState=" + V1ACTIVE;
   }
   else if (type == "CycleList") {
         url = V1HISTURL + "Story?" + JSONSTR + "&" +  PROJSTRC + "&asof=";
@@ -1242,7 +1242,7 @@ function initProjectIterations(projName, compute, callBack) {
 function updateIteration(url, compute, callBack) {
   var fullURL = url + '"' + getProjSched() + '"';
   
-  console.log ("V1Iter: " + fullURL);
+//  console.log ("V1Iter: " + fullURL);
   $.ajax({
     url: fullURL,
     headers: getV1Headers(),
