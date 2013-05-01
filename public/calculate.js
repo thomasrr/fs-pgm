@@ -14,6 +14,7 @@ function calculate() {
   var defect = { data: 0 };
   var story = { data: 0 };
   var issues = { data: 0};
+  var V1auth = { value: 0 };
   
   return {
     init: function() {
@@ -52,6 +53,9 @@ function calculate() {
 	  }
 	  else if (type == 'iteration') {
 	  	iteration.value = value;
+	  }
+	  else if (type == 'V1auth') {
+	    V1auth.value = value;
 	  }
 	},
 	setData: function(type, data) {
@@ -144,6 +148,9 @@ function calculate() {
 	  }
 	  else if (type == 'iteration') {
 	  	return iteration.value;
+	  }
+	  else if (type == 'V1auth') {
+	    return V1auth.value;
 	  }
 	},
 	getData: function(type) {

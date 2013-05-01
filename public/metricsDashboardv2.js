@@ -16,7 +16,7 @@ var AUTOLOAD = false;   // turn off if problem with project
 var USELOCAL = false;	// switch between storage model (mongoDB == false)
 
 // Handling data storage
-function getStoredItem(item, forceLocal) {
+function getStoredItem(item, forceLocal, callback, data) {
   var value = null;
   
   if ((USELOCAL == false) && (forceLocal == false)) {  // use database on server
@@ -25,10 +25,10 @@ function getStoredItem(item, forceLocal) {
       url: urlStr,
 	  type: 'GET',
       dataType: 'json',
-	  async: false,
+//	  async: false,
       success: function(result) {
 //	    console.log("Get: " + JSON.stringify(result));   // Debug json results
-	    value = result.value;
+	    callback(data, result.value);
 	  },
 	  error: function(err) {
 	    console.log("Error(Get): " + JSON.stringify(err));
@@ -306,7 +306,7 @@ function buildProjList(list) {
 
 	document.getElementById("projectName").innerHTML = buildProjListStr(PROJLIST);
 	document.getElementById("projectName").value = getStoredItem("projectName", true);
-	if ((getProjName() != "") && (AUTOLOAD == true)) loadMetricsPages();   // load the stored data, if appropriate
+	if ((getProjName() != "") && (AUTOLOAD == true)) loadMetricsPages(gCALC);   // load the stored data, if appropriate
 }
 
 function buildProjListStr(list) {
@@ -319,10 +319,10 @@ function buildProjListStr(list) {
 	return optList;
 }
 
-function loadProjList() {
+function loadProjList(compute) {
   $.ajax({
     url: getV1URL("ProjList", ""),
-    headers: getV1Headers(),
+    headers: getV1Headers(compute),
 	type: 'GET',
 	crossDomain: true,
     dataType: 'jsonp',
@@ -449,11 +449,12 @@ function orderV1Data(data) {
   return orderedBurnData;
 }
 
-function getV1Headers() {
-  var data = getStoredItem('V1user', false);
+function getV1Headers(compute) {
+  var data = compute.getValue('V1auth');
+  if (data == 0) return "";
+  
   var auth = data.name + ':' + data.pass;
 //  console.log ('V1 AUTH: ' + auth);
-
   var headers = { Authorization: "Basic " + btoa(auth) };
   
   return headers;
@@ -598,7 +599,7 @@ function computeV1Data(V1Base, compute, type, localData, start) {
 
   $.ajax({
     url: url,
-    headers: getV1Headers(),
+    headers: getV1Headers(compute),
 	type: 'GET',
 	crossDomain: true,
     dataType: 'jsonp',
@@ -813,7 +814,7 @@ function computeV1Cycle(V1Base, compute, localData, start) {
 
   $.ajax({
     url: url,
-    headers: getV1Headers(),
+    headers: getV1Headers(compute),
 	type: 'GET',
 	crossDomain: true,
     dataType: 'jsonp',
@@ -839,7 +840,7 @@ function computeV1CycleStory(V1Base, compute, localData) {
 
   $.ajax({
     url: V1Base,
-    headers: getV1Headers(),
+    headers: getV1Headers(compute),
 	type: 'GET',
 	crossDomain: true,
     dataType: 'jsonp',
@@ -1000,7 +1001,7 @@ function computeV1StoryImpact(V1Base, compute, start, posn) {
 
   $.ajax({
     url: url,
-    headers: getV1Headers(),
+    headers: getV1Headers(compute),
 	type: 'GET',
 	crossDomain: true,
     dataType: 'jsonp',
@@ -1245,7 +1246,7 @@ function updateIteration(url, compute, callBack) {
 //  console.log ("V1Iter: " + fullURL);
   $.ajax({
     url: fullURL,
-    headers: getV1Headers(),
+    headers: getV1Headers(compute),
 	type: 'GET',
 	crossDomain: true,
     dataType: 'jsonp',
@@ -1489,7 +1490,7 @@ function updateIssues(compute) {
   document.getElementById("issueData").innerHTML = "No Issues, yet!";
   $.ajax({
     url: getV1URL("Issues", ""),
-    headers: getV1Headers(),
+    headers: getV1Headers(compute),
 	type: 'GET',
 	crossDomain: true,
     dataType: 'jsonp',
@@ -1508,7 +1509,7 @@ function updateBug(compute) {
   document.getElementById("bugData").innerHTML = "No bug data, yet!";
   $.ajax({
     url: getV1URL("Defects", ""),
-    headers: getV1Headers(),
+    headers: getV1Headers(compute),
 	type: 'GET',
 	crossDomain: true,
     dataType: 'jsonp',
@@ -1528,7 +1529,7 @@ function updateStory(compute) {
   document.getElementById("storyData").innerHTML = "Waiting for Story data!";
   $.ajax({
     url: getV1URL("Story", ""),
-    headers: getV1Headers(),
+    headers: getV1Headers(compute),
 	type: 'GET',
 	crossDomain: true,
     dataType: 'jsonp',
@@ -2038,12 +2039,15 @@ function buildResourceChart(actual) {
   return chart;
 }
 
-function loadMetricsPages() {
-  var compute = initCompute();
+function loadMetricsPages(compute) {
   //showWaiting();
   initProjectIterations(getProjName(), compute, loadPageData);
- 
+
   document.getElementById("loadData").value = "Refresh";
+}
+
+function loadV1auth(compute, value) {
+  compute.setValue('V1auth', value);
 }
  
 function loadPageData(compute) {
@@ -2159,17 +2163,17 @@ $(document).ready(function() {
    }); 
 	
    $("#loadData").click(function(e) {
-         loadMetricsPages();
+         loadMetricsPages(gCALC);
     }); 
 	
 	$("#prefs").click(function(e) {
 	  updatePrefs(gCALC, false);
-	  loadMetricsPages();
+	  loadMetricsPages(gCALC);
 	});
 	
 	$("#resetPrefs").click(function(e) {
 	  updatePrefs(gCALC, true);
-	  loadMetricsPages();
+	  loadMetricsPages(gCALC);
 	});
 	
 	$("#clearStorage").click(function(e) {
@@ -2255,5 +2259,8 @@ function updatePrefs(pageVal, reset) {
 }
 
 function initPageData() {
-	loadProjList();
+    var compute = initCompute();
+	
+	getStoredItem('V1user', false, loadV1auth, compute);
+	loadProjList(compute);
 }
