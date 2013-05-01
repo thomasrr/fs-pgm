@@ -25,10 +25,9 @@ function getStoredItem(item, forceLocal, callback, data) {
       url: urlStr,
 	  type: 'GET',
       dataType: 'json',
-//	  async: false,
       success: function(result) {
 //	    console.log("Get: " + JSON.stringify(result));   // Debug json results
-	    callback(data, result.value);
+	    callback(result.value, data);
 	  },
 	  error: function(err) {
 	    console.log("Error(Get): " + JSON.stringify(err));
@@ -37,10 +36,8 @@ function getStoredItem(item, forceLocal, callback, data) {
   }
   
   if (USELOCAL || forceLocal || (value == null)) {  // look locally if not in database (transitionally)
-    if (window.localStorage) value = window.localStorage.getItem(item);
+    if (window.localStorage) callback(window.localStorage.getItem(item), data);
   }
-
-  return value; 
 }
 
 function setStoredItem(item, value, forceLocal) {
@@ -61,7 +58,6 @@ function setStoredItem(item, value, forceLocal) {
 	  type: 'POST',
 	  data: {'value':value},
       dataType: 'json',
-//	  async: false,
       success: function(result) {
 //	    console.log("Set: " + JSON.stringify(result));   // Debug json results
 	  },
@@ -451,7 +447,7 @@ function orderV1Data(data) {
 
 function getV1Headers(compute) {
   var data = compute.getValue('V1auth');
-  if (data == 0) return "";
+  if (data == null) return "";
   
   var auth = data.name + ':' + data.pass;
 //  console.log ('V1 AUTH: ' + auth);
@@ -2046,7 +2042,7 @@ function loadMetricsPages(compute) {
   document.getElementById("loadData").value = "Refresh";
 }
 
-function loadV1auth(compute, value) {
+function loadV1auth(value, compute) {
   compute.setValue('V1auth', value);
 }
  

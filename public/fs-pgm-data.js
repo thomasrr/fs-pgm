@@ -4,7 +4,7 @@ var Server = mongo.Server;
 var Db = mongo.Db;
 var BSON = mongo.BSONPure;
  
-var server = new Server('localhost', 27017, {auto_reconnect: true});
+var server = new Server('fs-pgm-dashboard.herokuapp.com', 27017, {auto_reconnect: true});
 db = new Db('metricsDB', server);
  
 db.open(function(err, db) {

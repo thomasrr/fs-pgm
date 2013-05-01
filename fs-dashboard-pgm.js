@@ -1,9 +1,9 @@
 var express = require('express');
-var fsData = require(__dirname + '/public/fs-pgm-data');
+var fsData = require('/public/fs-pgm-data');
 
 var app = express();
 
-app.use(express.static(__dirname + '/public'));
+app.use(express.static('/public'));
 //app.use(express.basicAuth('fs-pgm', 'dashboard'));
 
 app.configure(function () {
