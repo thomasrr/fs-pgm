@@ -9,7 +9,7 @@ var V1BASEURL = V1REST + "Data/";
 var V1HISTURL = V1REST + "Hist/";
 var JIRABASE = "https://almtools.ldschurch.org/fhjira/";
 var JIRAREST = JIRABASE + "rest/api/2/";
-var DBBASE = 'http://localhost:5000/';
+var DBBASE = 'http://fs-pgm-dashboard.herokuapp.com/';
 var DBURL = 'mongo/';
 
 var AUTOLOAD = false;   // turn off if problem with project
