@@ -1,24 +1,20 @@
 var mongo = require('mongodb');
+
+var MONGOURI = 'mongodb://dashboard:dashboard@linus.mongohq.com:10012/app15385821';
+//var MONGOURI = 'mongodb://localhost/metricsDB';
  
 var Server = mongo.Server;
 var Db = mongo.Db;
 var BSON = mongo.BSONPure;
+
+var db;
  
-var server = new Server('fs-pgm-dashboard.herokuapp.com', 27017, {auto_reconnect: true});
-db = new Db('metricsDB', server);
- 
-db.open(function(err, db) {
-  if(!err) {
-//    console.log("Connected to 'metricsDB' database");
-    db.collection('metricsDB', {strict:true}, function(err, collection) {
-//      populateDB();
-      if (err) {
-        console.log("The 'metricsDB' collection doesn't exist. Need to load data...");
-      }
-    });
-  }
+mongo.Db.connect(MONGOURI, function (err, dbIn) {
+  db = dbIn;
+  dbIn.collection('metricsDB', function(er, collection) {
+  });
 });
- 
+
 exports.getItem = function(req, res) {
   var id = req.params.id;   // expecting 'id' 
 //  console.log('Retrieving: ' + JSON.stringify(id));
@@ -49,7 +45,7 @@ exports.setItem = function(req, res) {  // overwrites if id exists
 	  }
 	  else {
 //	    console.log ('Updated: {' + JSON.stringify(id) + ':' + JSON.stringify(item) + '}');
-        res.send(item);
+        res.send({'result':item});
 	  }
     });
   });
@@ -66,7 +62,7 @@ exports.clear = function(req, res) {
 	  }
 	  else {
 //	    console.log ('Deleted: {' + JSON.stringify(id) + '}');
-        res.send(item);
+        res.send({'result':item});
 	  }
     });
   });

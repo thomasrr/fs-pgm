@@ -57,7 +57,7 @@ a:hover {
   text-transform: lowercase;
   font-variant: small-caps;
   font-weight: normal;
-  color: #666;
+  color: #667;
 }
 
 .head, .subhead {
@@ -127,6 +127,8 @@ a:hover {
 
 fieldset {
   border-top-left-radius: 10px;
+  margin-left:10px;
+  border: 2px solid #CCC;
 }
 
 ul#tabs{
@@ -158,10 +160,10 @@ ul#tabs li a {
 
 ul#tabs li a:hover { 
 	background-color: #E1ECC3;
-	color: #667
+	color: red
 }
 
-ul#tabs li a.selected {  
+ul#tabs li.active { 
 	color:#667; 
 	background-color: #E1ECC3;
 	font-weight: bold;
@@ -227,7 +229,7 @@ fieldset.mainChart {
 }
 
 div.issueList {
-	width:685px; 
+	width:665px; 
 	height:100px; 
 	background-color:white; 
 	overflow:auto;
@@ -261,15 +263,19 @@ div.halfPage {
 
 select.project {
 	 font-size:20px;
+	 min-width: 450px;
+	 min-height: 35px
 }
 
 form.projectData {
 	 padding-top: 15px;
-	 padding-bottom: 20px;
+	 padding-bottom: 10px;
+	 margin-left:15px;
 }
 
-input.button {
-	margin-left:15px
+.btn-primary {
+	margin-left:15px;
+	margin-bottom: 10px
 }
 
 input.loadData {

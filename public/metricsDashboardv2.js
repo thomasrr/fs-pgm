@@ -301,7 +301,12 @@ function buildProjList(list) {
 	PROJLIST.sort(function(a,b) { return a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1; });  // sort array on name
 
 	document.getElementById("projectName").innerHTML = buildProjListStr(PROJLIST);
-	document.getElementById("projectName").value = getStoredItem("projectName", true);
+	getStoredItem("projectName", true, setProjectName, null);
+}
+
+function setProjectName(value, data) {
+  	document.getElementById("projectName").value = value;
+	
 	if ((getProjName() != "") && (AUTOLOAD == true)) loadMetricsPages(gCALC);   // load the stored data, if appropriate
 }
 
