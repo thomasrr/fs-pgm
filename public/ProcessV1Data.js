@@ -1,86 +1,123 @@
-$.ajaxSetup({'async' :false});
-$.getScript('StorageDB.js');
-$.getScript('PGMChart.js');
-$.ajaxSetup({'async' :true});
+$.ajaxSetup({'async' : false}); $.getScript('StorageDB.js');
+$.ajaxSetup({'async' : false}); $.getScript('PGMChart.js');
+$.ajaxSetup({'async' : true});
 
 function ProcessV1Data() {
   this.data = new Array();
-  this.result = 0;
-  this.type = '';
+  this.result = new Array();
   this.url = '';
   this.items = [];
+  this.itemPosn = 0;
   this.increment = 0;
-  this.count = 0;     // number of compute calls
+  this.count = -1;     // number of compute calls
   this.storage = new StorageDB();
   this.chart = new PGMChart();
-}
+  this.class = 'ProcessV1Data';
+};
+
+ProcessV1Data.prototype.updateNotify = function() {
+  this.chart.notify(this.count);
+};
+
+ProcessV1Data.prototype.nextItem = function() {
+  this.itemPosn++;
+
+  return (this.itemPosn < this.items.length);
+};
 
 ProcessV1Data.prototype.getChart = function() {
   return this.chart;
-}
-
-ProcessV1Data.prototype.getType = function() {
-  return this.type;
-}
+};
 
 ProcessV1Data.prototype.prepareDisplay = function() {  
-}
+};
 
 ProcessV1Data.prototype.display = function() {  // display as a chart (default)
   this.chart.display();
-}
+};
 
 ProcessV1Data.prototype.setData = function(data) {  // save temporary values
   this.data = data;
-}
+};
 
 ProcessV1Data.prototype.pushData = function(data) {  // save partial temporary values
   this.data.push(data);
-}
+};
 
 ProcessV1Data.prototype.getData = function() {  // get temporary values
   return this.data;
-}
+};
 
-ProcessV1Data.prototype.updateURL = function(data) {
-}
+ProcessV1Data.prototype.updateURL = function(date) {
+  result = getV1URL(this.items[this.itemPosn], date, PROJECT);
+  
+  this.url = result;
+};
 
 ProcessV1Data.prototype.getURL = function() {
   return this.url;
-}
+};
+
+ProcessV1Data.prototype.pushResults = function(result) {
+  if (this.result == null) this.result = new Array();
+  
+  this.result.push(result);
+};
 
 ProcessV1Data.prototype.setResults = function(result) {
   this.result = result;
-}
+};
 
 ProcessV1Data.prototype.getResults = function() {
   return this.result;
-}
+};
 
 ProcessV1Data.prototype.loadResults = function() {  // get stored data (overwrite result)
 //  this.result = this.storage.getValue();
-}
+};
 
 ProcessV1Data.prototype.storeResults = function() {
 //  this.storage.setValue(this.result);
-}
+};
 
-ProcessV1Data.prototype.prepareResults = function(results, data) {   
-}
+ProcessV1Data.prototype.prepareResults = function(results, date) {   
+};
 
-ProcessV1Data.prototype.collectResults = function(data) {  // combine stored data and value 
-}
-
-ProcessV1Data.prototype.computeAll = function(iterator, data) {  // get all data from V1 (uses iterator)
-  while (iterator.getNext()) {
-    this.updateURL(iterator.getDate());
-    this.compute(this.getURL(), data);
-  }
-}
-
-ProcessV1Data.prototype.compute = function(urlStr, data) {  // get data from V1 (single REST call)
-  var self = this;
+ProcessV1Data.prototype.collectResults = function() {  // combine stored data and value 
+  var tmpData = this.getData();
   
+  this.loadResults();
+  for (var incr = 0; incr < tmpData.length; incr++) {
+	var date = new Date(tmpData[incr][0]);
+    this.pushResults([date.valueOf(), tmpData[incr][1]]);
+  }
+  this.setResults(orderV1Data(this.getResults()));
+ 
+  this.display();
+   
+  this.storeResults();
+};
+
+ProcessV1Data.prototype.computeAll = function(iterator) {  // get all data from V1 (uses iterator)
+  this.count = 0;
+  this.updateNotify();
+  
+  while (true) {
+    while (iterator.next()) {
+      var date = iterator.current();
+
+      this.updateURL(date);
+      this.compute(this.getURL(), date);
+    }
+	if (!this.nextItem()) break;
+	
+	iterator.reset();
+  } 
+};
+
+ProcessV1Data.prototype.compute = function(urlStr, date) {  // get data from V1 (single REST call)
+  var self = this;
+
   self.count++;
   $.ajax({
     url: urlStr,
@@ -89,16 +126,16 @@ ProcessV1Data.prototype.compute = function(urlStr, data) {  // get data from V1 
 	crossDomain: true,
 	dataType: 'jsonp',
 	success: function(result) {
-//	    console.log(JSON.stringify(result));
+//      console.warning(JSON.stringify(result));
 	  self.count--;
-	  self.prepareResults(result, data);
+	  self.prepareResults(result, date);
 	  
-	  if (self.count == 0) self.collectResults(data);
+	  if (self.count <= 0) self.collectResults();
 	},
 	error: function(errStr) {
 	  self.count--;
-	  console.log('Error: ' + JSON.stringify(errStr));
+	  console.error('compute(): ' + self.class + '\n' + JSON.stringify(self) + '\n==>' + JSON.stringify(errStr));
 	}
   });
-}
+};
 

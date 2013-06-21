@@ -9,13 +9,14 @@ function Issue() {
   this.items = ['Issues'];
   this.increment = 1;
   this.displayAll = false;
+  this.class = 'Issue';
 }
 
 Issue.prototype = new ProcessSimpleV1Data();
 Issue.prototype.constructor = Issue;
 
 Issue.prototype.format = function(full) {
-  var issueList = this.result;
+  var issueList = this.getResults();
   var formatted = "<ul>";
   var max = issueList.total;
   

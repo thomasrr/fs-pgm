@@ -1,6 +1,5 @@
-$.ajaxSetup({'async' :false});
-$.getScript('StorageLocal.js');
-$.ajaxSetup({'async' :true});
+$.ajaxSetup({'async' : false}); $.getScript('StorageLocal.js');
+$.ajaxSetup({'async' : true});
 
 var V1ACTIVE = '"64"';
 var V1CLOSED = '"128"';
@@ -14,43 +13,51 @@ function createV1Date(date) {
   result.setHours(23, 59, 59, 0);   // all dates are for 12:59:59.00 PM
   
   return result;
-}
+};
+
+function dateString(valu) {  // make sure dates all for time 23:59:59.00
+  var date = (valu == '') ? new Date() : new Date(valu);
+
+  str = date.toJSON().slice(0,11) + "23:59:59.00"; 
+  
+  return str;
+};
 
 function getV1DateObj(url) {  // expects input like (==url==)&asof="2013-01-31:23:59:59.00"
    var str = url.substr(url.search('asof')+5, 10);
    
    return convertDate(str);
-}
+};
 
 function orderV1Data(data) {
-  var orderedBurnData = new Array();
+  var orderedData = new Array();
 
   data.sort(function(a,b) { return a[0] - b[0]; });  // sort array on first value (dates)
   
   var lastDate = 0;
   for (var incr = 0; incr < data.length; incr++) {
     if (data[incr][0] == lastDate) {
-	  orderedBurnData[orderedBurnData.length-1][1] += data[incr][1];  // add Story and Defect data
+	  orderedData[orderedData.length-1][1] += data[incr][1];  // add Story and Defect data
 	}
 	else {
 	  lastDate = data[incr][0];
-	  orderedBurnData.push([data[incr][0], data[incr][1]]);
+	  orderedData.push([data[incr][0], data[incr][1]]);
 	}
   }
 		  
-  return orderedBurnData;
-}
+  return orderedData;
+};
 
 var dataV1 = { name:'', pass:'' };
 function loadV1Data() {
   var store = new StorageLocal();
   store.getValue('V1user', loadV1auth, null);
-}
+};
 
 function loadV1auth(value, data) {
   dataV1.name = value.name;	
   dataV1.pass = value.pass;
-}
+};
 
 function getV1Headers() {
   var auth = dataV1.name + ':' + dataV1.pass;
@@ -58,21 +65,22 @@ function getV1Headers() {
   var headers = { Authorization: "Basic " + btoa(auth) };
   
   return headers;
-}  
+}; 
 
-function getV1URL(type, projName) {
-  var projStr = (projName == "") ? ("\"" + PROJECT.getCurrent() + "\""): projName;
+function getV1URL(type, date, project) {
+  var projStr = "\"" + project.getCurrent() + "\"";
   var JSONSTR = "Accept=application/json";
   var PROJSTR = "where=Scope.Name=" + projStr + ";AssetState=" + V1ACTIVE;
   var PROJSTRC = "where=Scope.Name=" + projStr + ";AssetState=" + V1CLOSED;
-  var SCHEDSTR = "where=Schedule.Name=\"" + PROJECT.findSchedule() + "\"";
+  var SCHEDSTR = "where=Schedule.Name=\"" + project.findSchedule() + "\"";
   var DEFSEL = "sel=CreateDate,Owners,Description,Status,Number,Name";
   var CYCSEL = "sel=Timebox,ChangeDate,Estimate,Status&where=Number=";
-  var IMPSEL = "sel=ChangeDate,AssetState,Number,Status&where=Scope.Name=" + projStr;
+  var HISTSEL = "sel=ChangeDate,AssetState,Number,Status,Description,Category&where=Scope.Name=" + projStr;
   var STORSEL = "sel=Estimate,Number,Name,Status,Owners,Description,Custom_AcceptanceCriteria";
   var PROJSEL = "sel=Name,BeginDate,EndDate,Schedule";
   var PROJUP = "where=Scope.ParentMeAndDown='Scope:1'";
   var ITERSEL = "sel=BeginDate,EndDate";
+  var ASOF = 'asof=' + dateString(date);
   
   var url = "";
   
@@ -86,35 +94,35 @@ function getV1URL(type, projName) {
     url = V1BASEURL + "Story?" + JSONSTR + "&" + STORSEL + "&" + PROJSTR;
   }
   else if (type == "BurnDefect") {
-    url = V1HISTURL + "Defect?" + JSONSTR + "&" +  PROJSTR + "&asof=";
+    url = V1HISTURL + "Defect?" + JSONSTR + "&" +  PROJSTR + "&" + ASOF;
   }
   else if (type == "BurnStory") {
-    url = V1HISTURL + "Story?" + JSONSTR + "&" +  PROJSTR + "&asof=";
+    url = V1HISTURL + "Story?" + JSONSTR + "&" +  PROJSTR + "&" + ASOF;
   }
   else if (type == "VeloDefect") {
-        url = V1HISTURL + "Defect?" + JSONSTR + "&" +  PROJSTRC + "&asof=";
+        url = V1HISTURL + "Defect?" + JSONSTR + "&" +  PROJSTRC + "&" + ASOF;
   }
   else if (type == "VeloStory") {
-        url = V1HISTURL + "Story?" + JSONSTR + "&" +  PROJSTRC + "&asof=";
+        url = V1HISTURL + "Story?" + JSONSTR + "&" +  PROJSTRC + "&" + ASOF;
   }
   else if (type == "ProjList") {
         url = V1BASEURL + "Scope?" + JSONSTR + "&" + PROJSEL + "&" + "where=AssetState=" + V1ACTIVE;
   }
   else if (type == "CycleList") {
-        url = V1HISTURL + "Story?" + JSONSTR + "&" +  PROJSTRC + "&asof=";
+        url = V1HISTURL + "Story?" + JSONSTR + "&" +  PROJSTRC + "&" + ASOF;
   }
   else if (type == "CycleStory") {
-        url = V1HISTURL + "Story?" + JSONSTR + "&" + CYCSEL;
+        url = V1HISTURL + "Story?" + JSONSTR + "&" + CYCSEL + '"' + date + '"';
   }
-  else if (type == "Impact") {
-        url = V1HISTURL + "Story?" + JSONSTR + "&" +  IMPSEL + "&asof=";
+  else if (type == "History") {
+        url = V1HISTURL + "Story?" + JSONSTR + "&" +  HISTSEL + "&" + ASOF;
   }
   else if (type == "Iteration") {
         url = V1BASEURL + "Timebox?" + JSONSTR + "&" + ITERSEL + "&where=Schedule.Name=";
   }
   
   return url;
-}
+};
 
 function getV1Link(oid, text) {
   var link = '<a  target="_blank" href=' + V1BASE;
@@ -131,4 +139,4 @@ function getV1Link(oid, text) {
   link += ".mvc/Summary?oidToken=" + oid + ">" + text + "</a>";
   
   return link;
-}
+};

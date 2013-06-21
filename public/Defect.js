@@ -1,5 +1,5 @@
-$.ajaxSetup({'async' : false});
-$.getScript('ProcessSimpleV1Data.js');
+$.ajaxSetup({'async' : false}); $.getScript('ProcessSimpleV1Data.js');
+$.ajaxSetup({'async' : false}); $.getScript('DefectChart.js');
 $.ajaxSetup({'async' : true});
 
 function Defect() {
@@ -9,13 +9,26 @@ function Defect() {
   this.items = ['Defects'];
   this.increment = 1;
   this.displayAll = false;
+  this.chart = new DefectChart();
+  this.class = 'Defect';
 }
 
 Defect.prototype = new ProcessSimpleV1Data();
 Defect.prototype.constructor = Defect;
 
+Defect.prototype.display = function() { 
+  var chart = this.chart;
+  var aging = chart.computeAging(this.getResults());
+  
+  document.getElementById(this.type).innerHTML = this.format(this.displayAll);
+  
+  chart.displayTotal(aging);
+  chart.addData('Aging', 'darkblue', aging);
+  chart.display();
+};
+
 Defect.prototype.format = function(full) {
-  var defectList = this.result;
+  var defectList = this.getResults();
   var formatted = "";
   var max = defectList.total;
   
@@ -53,4 +66,4 @@ Defect.prototype.format = function(full) {
   }
   
   return formatted;
-}
+};

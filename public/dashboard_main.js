@@ -1,21 +1,22 @@
-$.ajaxSetup({'async' : false});
-$.getScript('ProjectList.js');
-$.getScript('StorageLocal.js');
-$.getScript('Burndown.js');
-$.getScript('Velocity.js');
-$.getScript('Issue.js');
-$.getScript('Story.js');
-$.getScript('Defect.js');
-$.getScript('Iterator.js');
-$.getScript('js/bootstrap.min.js');
+$.ajaxSetup({'async' : false}); $.getScript('ProjectList.js');
+$.ajaxSetup({'async' : false}); $.getScript('StorageLocal.js');
+$.ajaxSetup({'async' : false}); $.getScript('Burndown.js');
+$.ajaxSetup({'async' : false}); $.getScript('Velocity.js');
+$.ajaxSetup({'async' : false}); $.getScript('Issue.js');
+$.ajaxSetup({'async' : false}); $.getScript('Story.js');
+$.ajaxSetup({'async' : false}); $.getScript('Defect.js');
+$.ajaxSetup({'async' : false}); $.getScript('History.js');
+$.ajaxSetup({'async' : false}); $.getScript('Cycle.js');
+$.ajaxSetup({'async' : false}); $.getScript('js/bootstrap.min.js');
+$.ajaxSetup({'async' : false}); $.getScript('Iteration.js');  
+$.ajaxSetup({'async' : false}); $.getScript('DailyIteration.js'); 
+$.ajaxSetup({'async' : false}); $.getScript('StoryIteration.js'); 
 $.ajaxSetup({'async' : true});
 
-var DAY = 86400000;  // milliseconds per day
-var WEEK = 7 * DAY;  // milliseconds per week
 var WAIT = 200;      // milliseconds to wait before processing
 
 var tabList = new Array( ['dash', 'Dashboard'], ['defects', 'Defects'], ['stories', 'Stories'],
-						 ['cycleTab', 'Cycle Time'], ['zoomTab', ''], ['options', 'Options'] );
+						 ['cycleTab', 'Cycle Time'], ['zoomTab', ''] );
 
    
 function loadDashboard() {
@@ -23,86 +24,106 @@ function loadDashboard() {
   initPageData();
   
   buildPage();
-}
+};
 
 var PROJECT = {};
-var ITERATOR = {};
 function initPageData() {
   PROJECT = new ProjectList();  
   PROJECT.setURL();
-  
-//  ;
-  
-//  ITERATOR.computeAll(null, null);
-}
+};
 
 function buildPage() {
   buildProjectList();
   
-  var mainDiv = buildNav();
-  buildMainLayout(mainDiv);
+  buildMainLayout(buildNav());
   buildStoryLayout();
   buildDefectLayout();
-  buildCycleLayout();
-  buildOptionsLayout();
-}
+};
 
 $('#tabs').tab();
 
-function processCompute() {
+function prepareCompute() {
   var store = new StorageLocal();
-  var burn = new Burndown();
-  var velocity = new Velocity();
-  var issue = new Issue();
-  var story = new Story();
-  var defect = new Defect();
-  
-//  ITERATOR = new Iterator();
-  ITERATOR = new Iterator(PROJECT.findSchedule());
-  ITERATOR.computeAll();
+  var iterate = new Iteration(PROJECT);
   
   PROJECT.setCurrent('');
   store.setValue(PROJECT.getID(), PROJECT.getCurrent());
   
-  document.getElementById(burn.getType()).innerHTML = "Loading Burndown data.....";
-  burn.computeAll(ITERATOR, null);
-  ITERATOR.reset();
+  iterate.updateURL(null);
+  iterate.computeAll(null);
+  loadIteration(iterate);
+  
+  return false;
+};
 
-  document.getElementById(velocity.getType()).innerHTML = "Loading Velocity data.....";
-  velocity.computeAll(ITERATOR, null);
+function loadIteration(iterator) {
+  if (iterator.ready) {
+    var storyIteration = new StoryIteration(PROJECT);
+	
+	storyIteration.computeAll(null);
+    loadStoryIteration(storyIteration, iterator);
+  }
+  else {
+    setTimeout( function(){loadIteration(iterator)}, WAIT);
+  }
+};
+
+function loadStoryIteration(storyIteration, iterator) {
+  if (storyIteration.ready) {
+    processCompute(storyIteration, iterator);
+  }
+  else {
+    setTimeout( function(){loadStoryIteration(storyIteration, iterator)}, WAIT);
+  }
+};
+
+function processCompute(storyIteration, iteration) {
+  var burn = new Burndown();
+  var daily = new DailyIteration(PROJECT);
+  var velocity = new Velocity();
+  var issue = new Issue();
+  var story = new Story();
+  var defect = new Defect();
+  var history = new History();
+  var cycle = new Cycle();
+
+  daily.computeAll(null);   // preload iterator for burndown
+	
+  issue.computeAll(null);
+  story.computeAll(null);  
+  defect.computeAll(null);  // add Aging report
+
+  cycle.computeAll(storyIteration);
   
-//  document.getElementById(impact.getType()).innerHTML = "Loading Story Impact data.....";
+//  history.computeAll(iteration);  // add Impact, Resource Use
+  iteration.reset();
+//  velocity.computeAll(iteration);
   
-//  document.getElementById(cycle.getType()).innerHTML = "Loading Cycle Time data.....";
-  
-  document.getElementById(issue.getType()).innerHTML = "No Issues yet.....";
-  issue.updateURL();
-  issue.computeAll(null, null);
-  
-  document.getElementById(story.getType()).innerHTML = "No Stories yet.....";
-  story.updateURL();
-  story.computeAll(null, null);
-  
-  document.getElementById(defect.getType()).innerHTML = "No Defects yet.....";
-  defect.updateURL();
-  defect.computeAll(null, null);
+  burn.setVelocity(velocity);
+//  burn.computeAll(daily);
   
   document.getElementById('loadData').innerHTML = 'Refresh';
   
   return false;
-}
+};
 
 function buildProjectList() {
   var form = elementCreate('form', 'projectData', 'projectData');
   var select = elementCreate('select', 'project', 'projectName');
-  var compute = buttonCreate('Compute', 'btn btn-primary', 'loadData', processCompute);
+  var compute = buttonCreate('Compute', 'btn btn-primary', 'loadData', prepareCompute);
+  
+  select.onchange = changeCompute;
   
   form.appendChild(select);
   form.appendChild(compute);
   document.body.appendChild(form);
   
   PROJECT.compute(PROJECT.getURL(), null);
-}
+};
+
+function changeCompute() {
+  document.getElementById('loadData').innerHTML = 'Compute';
+};
 
 function buildNav() {
   var div = divCreate('tabbable');
@@ -110,7 +131,7 @@ function buildNav() {
   document.body.appendChild(div);
   
   return first; 
-}
+};
 	
 function buildMainLayout(mainDiv) {
   var row1 = divCreate('row-fluid');
@@ -151,7 +172,7 @@ function buildMainLayout(mainDiv) {
   row3.appendChild(col2);
   row3.appendChild(col3);
   mainDiv.appendChild(row3);
-}
+};
 
 function buildStoryLayout() {
   var elem = document.getElementById('stories');
@@ -161,7 +182,7 @@ function buildStoryLayout() {
   field.appendChild(legend);
   field.appendChild(divCreate('fullPage', 'storyData'));
   elem.appendChild(field);
-}
+};
 
 function buildDefectLayout() {
   var elem = document.getElementById('defects');
@@ -171,13 +192,7 @@ function buildDefectLayout() {
   field.appendChild(legend);
   field.appendChild(divCreate('fullPage', 'bugData'));
   elem.appendChild(field);
-}
-
-function buildCycleLayout() {
-}
-
-function buildOptionsLayout(){
-}
+};
 
 // HTML component convenience functions
 //
@@ -189,7 +204,7 @@ function elementCreate(typeStr, classStr, idStr, nameStr) {
   if ((nameStr != undefined) && (nameStr != '')) result.appendChild(document.createTextNode(nameStr));
   
   return result;
-}
+};
 
 function statusCreate(divID, pID) {
   var div = divCreate('', divID);
@@ -197,19 +212,19 @@ function statusCreate(divID, pID) {
   div.appendChild(pCreate('', pID));
   
   return div;
-}
+};
 
 function pCreate(classStr, idStr) {
   return elementCreate('p', classStr, idStr);
-}
+};
 
 function divCreate(classStr, idStr) {
   return elementCreate('div', classStr, idStr);
-}
+};
 
 function fieldCreate(classStr, idStr) {
   return elementCreate('fieldset', classStr, idStr);
-}
+};
 
 function chartCreate(name, fieldClass, legendID, divID) {
   var chart = fieldCreate(fieldClass);
@@ -219,26 +234,25 @@ function chartCreate(name, fieldClass, legendID, divID) {
   chart.appendChild(divCreate(fieldClass, divID));
   
   return chart;
-}
+};
 
 function legendCreate(name, classStr, idStr) {
   var legend = elementCreate('legend', classStr, idStr);
+  
   legend.appendChild(document.createTextNode(name));
 
   return legend;
-}
+};
 
 
 function buttonCreate(name, classStr, idStr, callBack) {
-
   var result = elementCreate('button', classStr, idStr);
   
   result.onclick = callBack;
-  
   result.appendChild(document.createTextNode(name));
   
   return result;
-}
+};
 
 
 function navCreate(list, location) {
@@ -264,7 +278,7 @@ function navCreate(list, location) {
   location.appendChild(panes);
 	
   return firstTab;
-}
+};
 
 function linkCreate(name, href, modifer, value, title) {
   var link = elementCreate('a');
@@ -276,5 +290,5 @@ function linkCreate(name, href, modifer, value, title) {
   if ((title != undefined) && (title != '')) link.title = title;
 
   return link;
-}
+};
 

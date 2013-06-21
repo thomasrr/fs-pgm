@@ -124,21 +124,36 @@ a:hover {
 	font-size: 12px;
 	max-width: 200px;
 }
+legend {
+  font: 14px helvetica;
+  line-height: 18px;
+  margin-bottom: 2px;
+  width: auto;
+  display: inherit;
+  border-style: none;
+  padding-left: 5px;
+  padding-right: 5px;
+}
 
 fieldset {
   border-top-left-radius: 10px;
   margin-left:10px;
   border: 2px solid #CCC;
+  padding: 15px;
+}
+
+.row-fluid {
+  padding-top: 12px;
 }
 
 ul#tabs{
 	list-style: none;
 	margin: 0 0 0 0;
-	padding: 3px 0;
-	border-bottom: 12px solid #CCC;
+	padding: 0;
+	border-bottom: 5px solid #CCC;
 	font-size: 15px;
 	text-align: right;
-	white-space: nowrap;
+	white-space: normal;
 }
   
 ul#tabs li {
@@ -163,18 +178,18 @@ ul#tabs li a:hover {
 	color: red
 }
 
-ul#tabs li.active { 
+ul#tabs li.active  a{ 
 	color:#667; 
 	background-color: #E1ECC3;
 	font-weight: bold;
-	font-size: 16px;
+	font-size: 15px;
 }
 
 ul#tabs a{
 	text-decoration: none;
 	padding: 0 0 3px;
-	border-bottom: 4px solid white;
 	color: #999;
+	border-radius: 7px;
 }
 
 div.tabContent { 
@@ -205,39 +220,41 @@ div.status p {
 }
 
 div.smallChart {
-	width:320px; 
-	height:200px; 
+	width:98%; 
+	height:98%; 
 	margin:0 auto
 }
 
-fieldset.smallChart {
-	width:330px; 
-	height:220px;
-	border-radius: 3px;
+fieldset.smallChart { 
+	height:232px;
+	margin-left: 20px;
+	width: 100%;
+	padding: 0px;
 }
 
 div.mainChart {
-	width:675px; 
-	height:440px; 
+	width:98%; 
+	height:98%; 
 	margin:0 auto
 }
 
 fieldset.mainChart {
-	width:695px; 
+	min-width:695px; 
 	height:460px;
-	border-radius: 3px;
+	width: 100%;
 }
 
 div.issueList {
-	width:665px; 
-	height:100px; 
+	width:94%; 
+	height:94%; 
 	background-color:white; 
 	overflow:auto;
 }
 
 fieldset.issueList {
-	width:685px; 
+	min-width:665px; 
 	height:120px;
+	width: 100%;
 	padding: 15px;
 }
 
@@ -266,10 +283,13 @@ select.project {
 	 min-width: 450px;
 	 min-height: 35px
 }
+form {
+  margin: 0;
+}
 
 form.projectData {
 	 padding-top: 15px;
-	 padding-bottom: 10px;
+	 padding-bottom: 0px;
 	 margin-left:15px;
 }
 

@@ -1,20 +1,20 @@
-$.ajaxSetup({'async' :false});
-$.getScript('ProcessV1Data.js');
-$.ajaxSetup({'async' :true});
+$.ajaxSetup({'async' : false}); $.getScript('ProcessSimpleV1Data.js');
+$.ajaxSetup({'async' : false}); $.getScript('dashboardUtils.js');
+$.ajaxSetup({'async' : true});
 
 function ProjectList() {
-  ProcessV1Data.call(this);
+  ProcessSimpleV1Data.call(this);
   this.list = new Array();
   this.type = 'ProjList';
   this.elemID = 'projectName';
   this.current = '';
   this.url = '';
-}
+  this.class = 'ProjectList';
+  this.localStore = new StorageLocal();
+};
 
-ProjectList.prototype = new ProcessV1Data();
+ProjectList.prototype = new ProcessSimpleV1Data();
 ProjectList.prototype.constructor = ProjectList;
-
-var store = new StorageLocal();
 
 ProjectList.prototype.prepareResults = function(results, data) {
 	var item = {};
@@ -35,32 +35,35 @@ ProjectList.prototype.prepareResults = function(results, data) {
 	this.sort();
 
 	document.getElementById(this.elemID).innerHTML = this.toString();
-	store.getValue(this.elemID, setProjectName, this);
-}
+	this.localStore.getValue(this.elemID, setProjectName, this);
+};
+
+ProjectList.prototype.display = function() {  // display as a chart (default)
+};
 
 function setProjectName(value, self) {
   self.setCurrent(value);
-}
+};
 
 ProjectList.prototype.getID = function() {
   return this.elemID;
-}
+};
 
 ProjectList.prototype.sort = function() {   // sort list of projects on name
   this.list.sort(function(a,b) { return a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1; }); 
-}
+};
 
 ProjectList.prototype.push = function(item) {
   this.list.push(item);
-}
+};
 
 ProjectList.prototype.getURL = function(item) {
   return this.url;
-}
+};
 
 ProjectList.prototype.setURL = function() {
-  this.url = getV1URL(this.type, '');
-}
+  this.url = getV1URL(this.type, '', PROJECT);
+};
 
 ProjectList.prototype.toString = function() {
   	var optList = "<option> </option>";
@@ -70,7 +73,7 @@ ProjectList.prototype.toString = function() {
 	}
 	
 	return optList;
-}
+};
 
 ProjectList.prototype.setCurrent = function(name) {
   if (name == '') {
@@ -81,7 +84,7 @@ ProjectList.prototype.setCurrent = function(name) {
   }
   
   this.current = name;
-}
+};
 
 ProjectList.prototype.getCurrent = function() {
   return this.current;
@@ -97,7 +100,7 @@ ProjectList.prototype.findSchedule = function() {
 	}
   }
   return result;
-}
+};
 
 ProjectList.prototype.findID = function() {
   var result = '';
@@ -109,7 +112,7 @@ ProjectList.prototype.findID = function() {
 	}
   }
   return result;
-}
+};
 
 ProjectList.prototype.findStartDate = function() {
   var result = new Date();
@@ -121,7 +124,7 @@ ProjectList.prototype.findStartDate = function() {
 	}
   }
   return result;
-}
+};
 
 ProjectList.prototype.findEndDate = function() {
   var result = new Date();
@@ -133,11 +136,11 @@ ProjectList.prototype.findEndDate = function() {
 	}
   }
   return result;
-}
+};
 
 ProjectList.prototype.computeEndDate = function() {   // last date to compute
   var last = this.findEndDate();
   var today = createV1Date(0);
 
   return (last < today) ? last : today;  // for old projects that are no longer active
-}
+};

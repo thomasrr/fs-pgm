@@ -1,3 +1,7 @@
+
+var DAY = 86400000;  // milliseconds per day
+var WEEK = 7 * DAY;  // milliseconds per week
+
 function createDate(mSecs) {
   var result = new Date(0);
   result.setTime(mSecs);

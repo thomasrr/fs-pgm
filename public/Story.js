@@ -9,13 +9,14 @@ function Story() {
   this.items = ['Story'];
   this.increment = 1;
   this.displayAll = true;
+  this.class = 'Story';
 }
 
 Story.prototype = new ProcessSimpleV1Data();
 Story.prototype.constructor = Story;
 
 Story.prototype.format = function(full) {
-  var storyList = this.result;
+  var storyList = this.getResults();
   var formatted = "";
   var max = storyList.total;
   
